@@ -1,0 +1,32 @@
+CLOUDSTACK PRO TERMS OF SERVICE (VERSION 2.0 - REVISED)
+
+Effective Date: October 1, 2024
+Provider: CloudStack Technologies Inc. ("Provider", "We", "Us")
+Customer: The individual or entity subscribing to the Service ("Customer", "You")
+
+1. SUBSCRIPTION SERVICES AND ACCESS
+Provider grants Customer a non-exclusive, non-transferable, revocable license to access and use the CloudStack platform. Provider reserves the right to modify, discontinue, or deprecate any feature or API at any time without liability or notice.
+
+2. FEES, AUTOMATIC RENEWAL, AND PRICE CHANGES
+Customer shall pay subscription fees of $799.00/month. Subscription terms automatically renew for recurring twelve (12) month periods unless Customer provides written non-renewal notice at least ninety (90) days prior to the end of the term. Provider may increase subscription fees by up to 25% annually upon fourteen (14) days' email notice. Invoices must be paid upon receipt (Net-0). Late payments incur a 2.5% monthly penalty.
+
+3. CUSTOMER DATA, AI TRAINING, AND PRIVACY
+Customer retains ownership of Customer Data. However, Customer grants Provider a perpetual, irrevocable, worldwide, royalty-free license to use, analyze, and train artificial intelligence and machine learning models on Customer Data in aggregated and de-identified formats.
+
+4. SERVICE LEVEL AGREEMENT (SLA)
+Provider provides the service "as is" and endeavors to maintain uptime, but does not guarantee any minimum uptime or provide service credits or financial remedies for downtime or service interruptions.
+
+5. INTELLECTUAL PROPERTY RIGHTS
+Provider owns all rights in the platform. Any feedback, suggestions, or ideas submitted by Customer become the sole and exclusive property of Provider without compensation.
+
+6. UNILATERAL LIMITATION OF LIABILITY
+Under no circumstances shall Provider's total aggregate liability for all claims arising under or related to this Agreement exceed the sum of One Hundred Dollars ($100.00). Provider disclaims all warranties of merchantability and fitness for a particular purpose.
+
+7. ONE-SIDED INDEMNIFICATION
+Customer shall defend, indemnify, and hold harmless Provider, its officers, and affiliates from any and all claims, liabilities, losses, damages, or costs (including legal fees) arising from Customer's use of the Service or any alleged breach of this Agreement. Provider offers no indemnification against third-party patent or copyright infringement.
+
+8. TERMINATION AND DATA FORFEITURE
+Provider may suspend or terminate Customer's account immediately at any time with or without cause or notice. Upon termination, Provider reserves the right to delete all Customer Data after forty-eight (48) hours without obligation to export or recover data.
+
+9. MANDATORY ARBITRATION AND VENUE SHIFT
+All disputes must be resolved solely through individual binding arbitration administered by the American Arbitration Association in Miami, Florida. Customer waives all rights to jury trial and class actions. Customer must file any formal claim within six (6) months of accrual or such claim is permanently barred.

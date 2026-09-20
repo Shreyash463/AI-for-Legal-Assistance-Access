@@ -1,0 +1,30 @@
+INDEPENDENT CONTRACTOR & IP ASSIGNMENT AGREEMENT
+
+This Agreement is entered into between Apex Innovations Corp ("Company") and Jane Smith ("Contractor").
+
+1. SERVICES AND DELIVERABLES
+Contractor agrees to perform custom software engineering and AI architecture services described in Exhibit A. Contractor shall determine the method, details, and means of performing the services, subject to Company's delivery deadlines.
+
+2. COMPENSATION AND PAYMENT
+Company shall pay Contractor at an hourly rate of $150.00. Invoices shall be submitted monthly and paid Net-60 days. In the event of a dispute over any milestone, Company may withhold 100% of all unpaid invoices pending resolution.
+
+3. WORK FOR HIRE AND IP ASSIGNMENT
+Contractor acknowledges and agrees that all works of authorship, designs, inventions, source code, patentable discoveries, and documentation created under this Agreement shall be deemed "work made for hire". Contractor irrevocably assigns and transfers to Company all worldwide rights, title, and interest in such Work Product, including all moral rights.
+
+4. NON-COMPETE AND RESTRICTIVE COVENANTS
+During the term of this Agreement and for a period of twenty-four (24) months following termination, Contractor shall not directly or indirectly provide consulting, engineering, or advisory services to any business or entity operating in competitive markets worldwide.
+
+5. NON-SOLICITATION
+For a period of twenty-four (24) months following termination, Contractor shall not solicit, entice, or attempt to hire any employee, contractor, or customer of Company.
+
+6. CONFIDENTIALITY
+Contractor shall hold all Company proprietary information in strict confidence and shall not disclose or use such information except as strictly necessary to perform the Services. This obligation survives termination indefinitely.
+
+7. INDEMNIFICATION
+Contractor shall indemnify and hold Company harmless against any losses, damages, or legal expenses resulting from any alleged infringement, breach of warranty, or acts or omissions of Contractor.
+
+8. TERMINATION
+Company may terminate this Agreement at any time with or without cause upon three (3) days' written notice. Contractor may terminate only upon thirty (30) days' written notice. Upon termination, Contractor shall immediately deliver all work-in-progress to Company.
+
+9. GOVERNING LAW
+This Agreement shall be construed in accordance with the laws of the State of California.

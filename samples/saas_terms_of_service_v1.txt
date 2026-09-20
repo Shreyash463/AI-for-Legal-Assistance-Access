@@ -1,0 +1,32 @@
+CLOUDSTACK PRO TERMS OF SERVICE (VERSION 1.0)
+
+Effective Date: January 1, 2024
+Provider: CloudStack Technologies Inc. ("Provider", "We", "Us")
+Customer: The individual or entity subscribing to the Service ("Customer", "You")
+
+1. SUBSCRIPTION SERVICES AND ACCESS
+Provider grants Customer a non-exclusive, non-transferable, revocable license to access and use the CloudStack platform solely for Customer's internal business operations during the subscription term.
+
+2. FEES AND BILLING
+Customer shall pay all subscription fees specified in the Order Form ($499.00/month). Invoices are payable within thirty (30) days of receipt (Net-30). Overdue balances accrue interest at 1.0% per month. Customer may cancel at any time upon thirty (30) days' written notice prior to the start of the next billing cycle.
+
+3. CUSTOMER DATA AND PRIVACY
+Customer retains all ownership, title, and intellectual property rights in and to Customer Data uploaded to the platform. Provider shall maintain reasonable administrative, physical, and technical safeguards to protect Customer Data from unauthorized disclosure. Provider will not sell or share Customer Data with third-party advertisers.
+
+4. SERVICE LEVEL AGREEMENT (SLA)
+Provider commits to maintaining 99.5% service uptime during each calendar month, excluding scheduled maintenance. If Provider fails to meet this commitment, Customer is entitled to a service credit equal to 10% of the monthly fee upon written request submitted within fifteen (15) days.
+
+5. INTELLECTUAL PROPERTY RIGHTS
+Provider owns and retains all proprietary rights, copyright, and trade secrets in the CloudStack platform, APIs, documentation, and underlying software. Customer shall not reverse engineer, decompile, or create derivative works.
+
+6. LIMITATION OF LIABILITY
+Neither party shall be liable for indirect, incidental, special, or consequential damages. Except for breaches of confidentiality or gross negligence, each party's aggregate liability under this Agreement shall not exceed the total fees paid by Customer to Provider in the twelve (12) months preceding the claim.
+
+7. INDEMNIFICATION
+Provider shall defend and indemnify Customer against third-party claims alleging that the CloudStack platform infringes a valid patent or copyright, provided Customer promptly notifies Provider in writing. Customer shall indemnify Provider for any claims arising from Customer Data violating third-party rights or applicable laws.
+
+8. TERMINATION FOR CAUSE
+Either party may terminate this Agreement immediately upon written notice if the other party materially breaches any term and fails to cure such breach within thirty (30) days of written notice. Upon termination, Customer may export Customer Data within thirty (30) days.
+
+9. GOVERNING LAW AND DISPUTES
+This Agreement is governed by the laws of the State of Delaware, without regard to conflicts of law principles. Any dispute arising hereunder shall be resolved in state or federal courts located in Wilmington, Delaware. Each party waives trial by jury.

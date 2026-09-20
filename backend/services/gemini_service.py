@@ -28,6 +28,23 @@ def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
         return None
 
 
+def execute_gemini_generation(client: genai.Client, prompt: str, config: types.GenerateContentConfig):
+    """Execute Gemini generation with automatic fallback to flash-latest or 3.5-flash-lite on 503 capacity spikes."""
+    models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
+    last_err = None
+    for m in models_to_try:
+        try:
+            return client.models.generate_content(
+                model=m,
+                contents=prompt,
+                config=config
+            )
+        except Exception as err:
+            last_err = err
+            continue
+    raise last_err
+
+
 def fallback_rule_based_analysis(raw_text: str, filename: str, reading_level: str = "standard") -> DocumentAnalysisResponse:
     """
     High-fidelity offline fallback analyzer for standard contracts or when API key is not configured.
@@ -269,9 +286,9 @@ Return a JSON object with this exact structure:
 """
 
     try:
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
+        response = execute_gemini_generation(
+            client=client,
+            prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 system_instruction=system_instruction,
@@ -449,9 +466,9 @@ Return a JSON object with this exact structure:
 """
 
     try:
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
+        response = execute_gemini_generation(
+            client=client,
+            prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 system_instruction=system_instruction,
@@ -616,9 +633,9 @@ Return JSON with this structure:
 """
 
     try:
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
+        response = execute_gemini_generation(
+            client=client,
+            prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 system_instruction=system_instruction,

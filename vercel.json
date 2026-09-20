@@ -4,14 +4,14 @@
       "source": "/(.*)",
       "destination": {
         "type": "service",
-        "service": "clarifylaw-ai"
+        "service": "api"
       }
     }
   ],
   "services": {
-    "clarifylaw-ai": {
+    "api": {
       "root": ".",
-      "entrypoint": "backend/main.py"
+      "entrypoint": "api/index.py"
     }
   }
 }

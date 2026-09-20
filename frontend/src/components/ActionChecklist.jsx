@@ -47,27 +47,27 @@ export default function ActionChecklist({ analysis }) {
             type="button"
             onClick={handleCopy}
             aria-label="Copy full analysis report as Markdown"
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="btn-press px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200/90 transition shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
             title="Copy Full Report as Markdown"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />}
             <span>{copied ? 'Copied!' : 'Copy Markdown'}</span>
           </button>
           <button
             type="button"
             onClick={handleDownload}
             aria-label="Download analysis report as markdown file"
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="btn-press px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200/90 transition shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
             title="Download Report as .md file"
           >
-            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <Download className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
             <span>Download .MD</span>
           </button>
           <button
             type="button"
             onClick={printReport}
             aria-label="Print report or save as PDF"
-            className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="btn-press px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
             title="Print or Save PDF"
           >
             <Printer className="w-3.5 h-3.5" aria-hidden="true" />
@@ -79,7 +79,7 @@ export default function ActionChecklist({ analysis }) {
       {/* Checklist Sections */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Column 1: Questions for Lawyer */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div className="interactive-card bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
           <div className="flex items-center gap-2 text-indigo-700 pb-3 border-b border-slate-100">
             <HelpCircle className="w-5 h-5 text-indigo-600 flex-shrink-0" />
             <div>
@@ -98,7 +98,7 @@ export default function ActionChecklist({ analysis }) {
                   className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-indigo-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
-                      : 'bg-white border-slate-200 hover:border-indigo-300 text-slate-800'
+                      : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/20 text-slate-800 shadow-2xs'
                   }`}
                 >
                   <input
@@ -116,7 +116,7 @@ export default function ActionChecklist({ analysis }) {
         </div>
 
         {/* Column 2: Red Flags to Clarify */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div className="interactive-card bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4" style={{ animationDelay: '100ms' }}>
           <div className="flex items-center gap-2 text-red-700 pb-3 border-b border-slate-100">
             <AlertOctagon className="w-5 h-5 text-red-600 flex-shrink-0" />
             <div>
@@ -135,7 +135,7 @@ export default function ActionChecklist({ analysis }) {
                   className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-red-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
-                      : 'bg-white border-slate-200 hover:border-red-300 text-slate-800'
+                      : 'bg-white border-slate-200 hover:border-red-300 hover:bg-red-50/20 text-slate-800 shadow-2xs'
                   }`}
                 >
                   <input
@@ -153,7 +153,7 @@ export default function ActionChecklist({ analysis }) {
         </div>
 
         {/* Column 3: Recommended Next Steps */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div className="interactive-card bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4" style={{ animationDelay: '200ms' }}>
           <div className="flex items-center gap-2 text-emerald-700 pb-3 border-b border-slate-100">
             <ListTodo className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
@@ -172,7 +172,7 @@ export default function ActionChecklist({ analysis }) {
                   className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-emerald-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
-                      : 'bg-white border-slate-200 hover:border-emerald-300 text-slate-800'
+                      : 'bg-white border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/20 text-slate-800 shadow-2xs'
                   }`}
                 >
                   <input

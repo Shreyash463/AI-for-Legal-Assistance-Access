@@ -17,22 +17,22 @@ export default function RiskRadar({ risks, onJumpToSection }) {
     switch (severity) {
       case 'HIGH':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-100 border border-red-300 px-2.5 py-0.5 rounded-full">
-            <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-700 bg-gradient-to-r from-red-50 to-rose-100 border border-red-300/80 px-2.5 py-0.5 rounded-full shadow-xs pulse-high-risk">
+            <ShieldAlert className="w-3.5 h-3.5 text-red-600 shrink-0" />
             HIGH RISK
           </span>
         );
       case 'MEDIUM':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-300/80 px-2.5 py-0.5 rounded-full shadow-xs">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
             MEDIUM RISK
           </span>
         );
       case 'LOW':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-100 border border-blue-300 px-2.5 py-0.5 rounded-full">
-            <Info className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-800 bg-gradient-to-r from-blue-50 to-slate-100 border border-blue-300/80 px-2.5 py-0.5 rounded-full shadow-xs">
+            <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             LOW / NOTEWORTHY
           </span>
         );
@@ -56,15 +56,15 @@ export default function RiskRadar({ risks, onJumpToSection }) {
         </div>
 
         {/* Filter Chips with Accessible Count and Icons */}
-        <div role="radiogroup" aria-label="Filter risks by severity" className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 self-start md:self-auto">
+        <div role="radiogroup" aria-label="Filter risks by severity" className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 self-start md:self-auto shadow-2xs">
           <button
             type="button"
             role="radio"
             aria-checked={severityFilter === 'ALL'}
             onClick={() => setSeverityFilter('ALL')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+            className={`btn-press px-3 py-1 text-xs font-semibold rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'ALL'
-                ? 'bg-white text-slate-900 shadow-sm'
+                ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -75,9 +75,9 @@ export default function RiskRadar({ risks, onJumpToSection }) {
             role="radio"
             aria-checked={severityFilter === 'HIGH'}
             onClick={() => setSeverityFilter('HIGH')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+            className={`btn-press px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'HIGH'
-                ? 'bg-red-600 text-white shadow-sm'
+                ? 'bg-red-600 text-white shadow-xs'
                 : 'text-red-700 hover:bg-red-50'
             }`}
           >
@@ -89,9 +89,9 @@ export default function RiskRadar({ risks, onJumpToSection }) {
             role="radio"
             aria-checked={severityFilter === 'MEDIUM'}
             onClick={() => setSeverityFilter('MEDIUM')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+            className={`btn-press px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'MEDIUM'
-                ? 'bg-amber-600 text-white shadow-sm'
+                ? 'bg-amber-600 text-white shadow-xs'
                 : 'text-amber-800 hover:bg-amber-50'
             }`}
           >
@@ -103,9 +103,9 @@ export default function RiskRadar({ risks, onJumpToSection }) {
             role="radio"
             aria-checked={severityFilter === 'LOW'}
             onClick={() => setSeverityFilter('LOW')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+            className={`btn-press px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'LOW'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'text-blue-700 hover:bg-blue-50'
             }`}
           >
@@ -118,20 +118,21 @@ export default function RiskRadar({ risks, onJumpToSection }) {
       {/* Risk Cards */}
       <div className="space-y-4">
         {filteredRisks.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500">
+          <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 shadow-2xs">
             <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
             <p className="text-sm font-semibold">No clauses match the selected severity filter.</p>
           </div>
         ) : (
-          filteredRisks.map((risk) => (
+          filteredRisks.map((risk, index) => (
             <div
               key={risk.id}
-              className={`bg-white rounded-2xl border transition shadow-sm overflow-hidden ${
+              style={{ animationDelay: `${Math.min(index * 60, 300)}ms` }}
+              className={`interactive-card bg-white rounded-2xl border shadow-xs overflow-hidden ${
                 risk.severity === 'HIGH'
-                  ? 'border-red-200 ring-1 ring-red-100 hover:border-red-300'
+                  ? 'border-red-200/90 ring-1 ring-red-100 hover:border-red-400'
                   : risk.severity === 'MEDIUM'
-                  ? 'border-amber-200 ring-1 ring-amber-100 hover:border-amber-300'
-                  : 'border-blue-200 ring-1 ring-blue-100 hover:border-blue-300'
+                  ? 'border-amber-200/90 ring-1 ring-amber-100 hover:border-amber-400'
+                  : 'border-blue-200/90 ring-1 ring-blue-100 hover:border-blue-400'
               }`}
             >
               {/* Card Header */}
@@ -142,7 +143,7 @@ export default function RiskRadar({ risks, onJumpToSection }) {
                 </div>
                 <button
                   onClick={() => onJumpToSection && onJumpToSection(risk.section_id)}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline"
+                  className="btn-press text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50/60 hover:bg-blue-100/70 px-2.5 py-1 rounded-lg border border-blue-200/60 flex items-center gap-1 transition"
                 >
                   <span>Linked: {risk.section_id}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />

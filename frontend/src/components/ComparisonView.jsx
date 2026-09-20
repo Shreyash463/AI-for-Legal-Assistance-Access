@@ -66,7 +66,7 @@ export default function ComparisonView({ apiKey }) {
   const getAssessmentBadge = (assessment) => {
     if (assessment.includes('Higher Risk in Doc B') || assessment.includes('Doc A more favorable')) {
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full">
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-300/80 px-2.5 py-0.5 rounded-full shadow-2xs">
           <AlertTriangle className="w-3 h-3 text-amber-600" />
           Doc B Higher Risk
         </span>
@@ -74,14 +74,14 @@ export default function ComparisonView({ apiKey }) {
     }
     if (assessment.includes('Higher Risk in Doc A') || assessment.includes('Doc B more favorable')) {
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-300/80 px-2.5 py-0.5 rounded-full shadow-2xs">
           <ShieldCheck className="w-3 h-3 text-emerald-600" />
           Doc B Safer
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full shadow-2xs">
         Neutral / Similar
       </span>
     );
@@ -90,7 +90,7 @@ export default function ComparisonView({ apiKey }) {
   return (
     <div className="space-y-6">
       {/* Top Controls */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <Columns className="w-5 h-5 text-blue-600" />
@@ -106,7 +106,7 @@ export default function ComparisonView({ apiKey }) {
             type="button"
             onClick={handleLoadSamplePair}
             aria-label="Load preloaded sample comparison contract pair (SaaS Terms of Service v1 vs v2)"
-            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="btn-press px-3.5 py-2 bg-blue-50 hover:bg-blue-100/80 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Load Sample Pair (SaaS v1 vs v2)</span>
@@ -116,7 +116,7 @@ export default function ComparisonView({ apiKey }) {
             disabled={isComparing || !docAText.trim() || !docBText.trim()}
             onClick={handleRunComparison}
             aria-label="Compare Document A and Document B side-by-side"
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="btn-press px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer disabled:cursor-not-allowed"
           >
             {isComparing ? (
               <>
@@ -142,14 +142,14 @@ export default function ComparisonView({ apiKey }) {
       {/* Input Editors (Side by Side) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Document A */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="interactive-card bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <input
               type="text"
               aria-label="Document A Name"
               value={docAName}
               onChange={(e) => setDocAName(e.target.value)}
-              className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <span className="text-[11px] text-slate-400 font-mono">
               {docAText.split(/\s+/).filter(Boolean).length} words
@@ -166,14 +166,14 @@ export default function ComparisonView({ apiKey }) {
         </div>
 
         {/* Document B */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="interactive-card bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2" style={{ animationDelay: '80ms' }}>
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <input
               type="text"
               aria-label="Document B Name"
               value={docBName}
               onChange={(e) => setDocBName(e.target.value)}
-              className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <span className="text-[11px] text-slate-400 font-mono">
               {docBText.split(/\s+/).filter(Boolean).length} words
@@ -192,7 +192,7 @@ export default function ComparisonView({ apiKey }) {
 
       {/* Comparison Output */}
       {comparisonResult && (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-fade-slide">
           {/* Executive Verdict Banner */}
           <div className="bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-2xl shadow-md border border-slate-800">
             <div className="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-wider mb-2">
@@ -208,7 +208,7 @@ export default function ComparisonView({ apiKey }) {
           </div>
 
           {/* Key Differences Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <h4 className="text-sm font-bold text-slate-900">Term-by-Term Comparison Matrix</h4>
               <span className="text-xs text-slate-500">

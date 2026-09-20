@@ -48,29 +48,29 @@ export default function App() {
     switch (score) {
       case 'Critical Risk':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-red-700 bg-red-100 border border-red-300 rounded-full">
-            <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-red-700 bg-gradient-to-r from-red-50 to-rose-100 border border-red-300/80 rounded-full shadow-2xs pulse-high-risk">
+            <ShieldAlert className="w-3.5 h-3.5 text-red-600 shrink-0" />
             CRITICAL RISK DETECTED
           </span>
         );
       case 'High Risk':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-red-700 bg-red-50 border border-red-200 rounded-full">
-            <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-red-700 bg-gradient-to-r from-red-50 to-rose-100 border border-red-300/80 rounded-full shadow-2xs">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
             HIGH RISK
           </span>
         );
       case 'Moderate Risk':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-amber-700 bg-amber-100 border border-amber-300 rounded-full">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-amber-800 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-300/80 rounded-full shadow-2xs">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
             MODERATE RISK
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 rounded-full">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-emerald-800 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-300/80 rounded-full shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             LOW RISK / STANDARD
           </span>
         );
@@ -130,14 +130,14 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setAnalysis(null)}
-                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+                        className="btn-press px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border border-slate-200/80 shadow-2xs cursor-pointer"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>Analyze Another</span>
                       </button>
                       <button
                         onClick={handleClearSession}
-                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border border-transparent hover:border-red-200"
+                        className="btn-press px-3.5 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border border-transparent hover:border-red-200 cursor-pointer"
                         title="Purge document from temporary server memory"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -190,16 +190,16 @@ export default function App() {
                 </div>
 
                 {/* Sub-Navigation Tabs */}
-                <div role="tablist" aria-label="Analysis Feature Views" className="flex border-b border-slate-200 bg-white rounded-2xl p-1.5 shadow-sm overflow-x-auto gap-1">
+                <div role="tablist" aria-label="Analysis Feature Views" className="flex border-b border-slate-200 bg-white rounded-2xl p-1.5 shadow-2xs overflow-x-auto gap-1">
                   <button
                     type="button"
                     role="tab"
                     id="subtab-simplifier"
                     aria-selected={activeSubTab === 'simplifier'}
                     onClick={() => setActiveSubTab('simplifier')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+                    className={`btn-press px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer ${
                       activeSubTab === 'simplifier'
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
@@ -213,9 +213,9 @@ export default function App() {
                     id="subtab-radar"
                     aria-selected={activeSubTab === 'radar'}
                     onClick={() => setActiveSubTab('radar')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+                    className={`btn-press px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer ${
                       activeSubTab === 'radar'
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
@@ -229,9 +229,9 @@ export default function App() {
                     id="subtab-qa"
                     aria-selected={activeSubTab === 'qa'}
                     onClick={() => setActiveSubTab('qa')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+                    className={`btn-press px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer ${
                       activeSubTab === 'qa'
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
@@ -245,9 +245,9 @@ export default function App() {
                     id="subtab-checklist"
                     aria-selected={activeSubTab === 'checklist'}
                     onClick={() => setActiveSubTab('checklist')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+                    className={`btn-press px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer ${
                       activeSubTab === 'checklist'
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
@@ -256,34 +256,36 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Sub-Tab Panels */}
-                {activeSubTab === 'simplifier' && (
-                  <SectionSimplifier
-                    sections={analysis.sections}
-                    rawText={analysis.raw_text}
-                  />
-                )}
+                {/* Sub-Tab Panels with Fade/Slide Transitions */}
+                <div key={activeSubTab} className="animate-fade-slide">
+                  {activeSubTab === 'simplifier' && (
+                    <SectionSimplifier
+                      sections={analysis.sections}
+                      rawText={analysis.raw_text}
+                    />
+                  )}
 
-                {activeSubTab === 'radar' && (
-                  <RiskRadar
-                    risks={analysis.risks}
-                    onJumpToSection={() => {
-                      setActiveSubTab('simplifier');
-                    }}
-                  />
-                )}
+                  {activeSubTab === 'radar' && (
+                    <RiskRadar
+                      risks={analysis.risks}
+                      onJumpToSection={() => {
+                        setActiveSubTab('simplifier');
+                      }}
+                    />
+                  )}
 
-                {activeSubTab === 'qa' && (
-                  <DocumentQA
-                    documentText={analysis.raw_text}
-                    documentId={analysis.document_id}
-                    apiKey={apiKey}
-                  />
-                )}
+                  {activeSubTab === 'qa' && (
+                    <DocumentQA
+                      documentText={analysis.raw_text}
+                      documentId={analysis.document_id}
+                      apiKey={apiKey}
+                    />
+                  )}
 
-                {activeSubTab === 'checklist' && (
-                  <ActionChecklist analysis={analysis} />
-                )}
+                  {activeSubTab === 'checklist' && (
+                    <ActionChecklist analysis={analysis} />
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -306,29 +306,36 @@ export default function DocumentUpload({
                   key={sample.id}
                   onClick={() => setSelectedSampleId(sample.id)}
                   aria-pressed={selectedSampleId === sample.id}
-                  className={`w-full p-4 rounded-xl border transition text-left relative flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
+                  className={`w-full p-4 rounded-xl border transition-all text-left relative flex flex-col justify-between interactive-card focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                     selectedSampleId === sample.id
-                      ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                      ? 'border-blue-600 bg-blue-50/60 shadow-md ring-2 ring-blue-500/20'
+                      : 'border-slate-200 hover:border-slate-300 bg-white shadow-xs'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/70 border border-blue-200/60 px-2.5 py-0.5 rounded-md shadow-2xs">
                         {sample.category}
                       </span>
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-[11px] text-slate-400 font-mono">
                         {sample.word_count} words
                       </span>
                     </div>
-                    <h4 className="text-sm font-bold text-slate-900">{sample.title}</h4>
+                    <h4 className="text-sm font-bold text-slate-900 tracking-tight">{sample.title}</h4>
                     <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
                       {sample.description}
                     </p>
                   </div>
-                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600 w-full">
-                    <span>Select for analysis</span>
-                    <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                  <div className="mt-3.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600 w-full">
+                    <span className="flex items-center gap-1.5">
+                      {selectedSampleId === sample.id ? (
+                        <span className="w-2 h-2 rounded-full bg-blue-600" />
+                      ) : (
+                        <span className="w-2 h-2 rounded-full bg-slate-300" />
+                      )}
+                      {selectedSampleId === sample.id ? 'Selected for analysis' : 'Click to select'}
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                   </div>
                 </button>
               ))}
@@ -342,12 +349,12 @@ export default function DocumentUpload({
                   const selected = sampleDocuments.find((s) => s.id === selectedSampleId) || sampleDocuments[0];
                   if (selected) handleAnalyzeSample(selected);
                 }}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition disabled:opacity-50"
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm hover:shadow-md transition-all btn-press disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Analyzing...</span>
+                    <span>Analyzing Contract...</span>
                   </>
                 ) : (
                   <>
@@ -362,29 +369,41 @@ export default function DocumentUpload({
 
         {/* UPLOAD TAB */}
         {activeInputTab === 'upload' && (
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer relative">
+          <div className="space-y-4 animate-fade-slide">
+            <div className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-blue-50/20 transition-all cursor-pointer relative group">
               <input
                 type="file"
                 accept=".pdf,.txt,.md,.text"
                 onChange={handleFileChange}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
               />
-              <Upload className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3 transition-transform group-hover:scale-110 shadow-xs border border-blue-100">
+                <Upload className="w-6 h-6" />
+              </div>
               {selectedFile ? (
-                <div className="text-slate-800 font-semibold text-sm flex items-center justify-center gap-2">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                  <span>{selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</span>
-                  <Check className="w-4 h-4 text-emerald-600" />
+                <div className="bg-white p-3 rounded-xl border border-blue-200 inline-flex items-center gap-3 shadow-xs">
+                  <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <div className="text-left">
+                    <p className="text-slate-900 font-bold text-xs">{selectedFile.name}</p>
+                    <p className="text-slate-400 text-[10px]">{(selectedFile.size / 1024).toFixed(1)} KB • Ready for analysis</p>
+                  </div>
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5" />
+                  </span>
                 </div>
               ) : (
                 <>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-sm font-bold text-slate-800 tracking-tight">
                     Drag and drop your legal contract here, or click to browse
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    Supports PDF, TXT, MD documents up to 10MB.
+                    Upload any lease, employment agreement, NDA, or terms of service up to 10MB.
                   </p>
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <span className="text-[10px] font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600">PDF</span>
+                    <span className="text-[10px] font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600">TXT</span>
+                    <span className="text-[10px] font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600">MARKDOWN</span>
+                  </div>
                 </>
               )}
             </div>
@@ -394,7 +413,7 @@ export default function DocumentUpload({
                 type="button"
                 disabled={isLoading || !selectedFile}
                 onClick={handleAnalyzeUpload}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition disabled:opacity-50"
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm hover:shadow-md transition-all btn-press disabled:opacity-50"
               >
                 {isLoading ? 'Processing Document...' : 'Upload & Simplify'}
               </button>
@@ -404,23 +423,23 @@ export default function DocumentUpload({
 
         {/* PASTE TAB */}
         {activeInputTab === 'paste' && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-slide">
             <textarea
               rows={8}
               value={pastedText}
               onChange={(e) => setPastedText(e.target.value)}
               placeholder="Paste contract text, terms of service, or lease clauses here..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono leading-relaxed"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono leading-relaxed bg-slate-50/30 focus:bg-white transition-colors"
             />
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                {pastedText.length} characters ({pastedText.split(/\s+/).filter(Boolean).length} words)
+              <span className="text-xs text-slate-500 font-mono">
+                {pastedText.length} characters • {pastedText.split(/\s+/).filter(Boolean).length} words
               </span>
               <button
                 type="button"
                 disabled={isLoading || pastedText.trim().length < 20}
                 onClick={handleAnalyzePasted}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition disabled:opacity-50"
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm hover:shadow-md transition-all btn-press disabled:opacity-50"
               >
                 {isLoading ? 'Analyzing Text...' : 'Analyze Pasted Contract'}
               </button>
@@ -428,13 +447,22 @@ export default function DocumentUpload({
           </div>
         )}
 
-        {/* Processing Indicator */}
+        {/* Dynamic Skeleton Shimmer Loading State */}
         {isLoading && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-center gap-3">
-            <span className="w-5 h-5 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-blue-950">AI Contract Engine Active</p>
-              <p className="text-blue-700 text-[11px] mt-0.5">{loadingStep}</p>
+          <div className="mt-5 p-5 bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-200/80 rounded-2xl space-y-4 animate-fade-slide">
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin flex-shrink-0" />
+              <div>
+                <p className="font-bold text-slate-900 text-xs">AI Legal Intelligence Engine Running</p>
+                <p className="text-blue-700 text-[11px] font-medium">{loadingStep}</p>
+              </div>
+            </div>
+
+            {/* Shimmer Skeleton Rows */}
+            <div className="space-y-2 pt-1">
+              <div className="h-4 skeleton-shimmer rounded-lg w-4/5" />
+              <div className="h-3 skeleton-shimmer rounded-lg w-full" />
+              <div className="h-3 skeleton-shimmer rounded-lg w-3/4" />
             </div>
           </div>
         )}

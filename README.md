@@ -8,6 +8,9 @@
 
 **ClarifyLaw AI**: An autonomous, production-grade GenAI application that transforms complex legal documents into plain-English, traceable insights, audits high-risk traps, provides hallucination-free document Q&A, and performs side-by-side contract diffing.
 
+🌐 **Live Production Web App**: **[https://clarifylaw-ai.vercel.app](https://clarifylaw-ai.vercel.app)**  
+📁 **Public GitHub Repository**: **[https://github.com/Shreyash463/AI-for-Legal-Assistance-Access](https://github.com/Shreyash463/AI-for-Legal-Assistance-Access)**
+
 ---
 
 ## 2. Problem Statement Being Solved

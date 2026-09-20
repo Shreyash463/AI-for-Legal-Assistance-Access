@@ -55,14 +55,17 @@ export default function SectionSimplifier({ sections, rawText }) {
       {/* Split Interactive View */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Simplified Plain-English Cards */}
-        <div className="lg:col-span-7 space-y-3">
+        <div className="lg:col-span-7 space-y-3" role="region" aria-label="Simplified Clause List">
           {sections.map((sec) => {
             const isSelected = activeSectionId === sec.id;
             return (
-              <div
+              <button
+                type="button"
                 key={sec.id}
                 onClick={() => handleSelectSection(sec.id)}
-                className={`p-4 rounded-xl border transition cursor-pointer relative ${
+                aria-pressed={isSelected}
+                aria-label={`Clause ${sec.id}: ${sec.title}. Category: ${sec.category}. Click to trace original text.`}
+                className={`w-full text-left p-4 rounded-xl border transition relative focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                   isSelected
                     ? 'border-blue-600 bg-blue-50/40 shadow-sm ring-2 ring-blue-500/20'
                     : 'border-slate-200 hover:border-slate-300 bg-white'
@@ -104,7 +107,7 @@ export default function SectionSimplifier({ sections, rawText }) {
                   </span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

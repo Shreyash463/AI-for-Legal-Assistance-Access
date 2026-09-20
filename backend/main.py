@@ -1,13 +1,20 @@
+"""
+ClarifyLaw AI — FastAPI Backend Application Entrypoint.
+Provides production endpoints for document simplification, risk auditing,
+grounded Q&A, and contract comparison.
+"""
+
 import os
 from pathlib import Path
 from datetime import datetime, timezone
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import ENVIRONMENT, GEMINI_MODEL
 from backend.models.schemas import LEGAL_DISCLAIMER_TEXT
+from backend.services.rate_limiter import rate_limiter
 from backend.routers.documents import router as documents_router
 from backend.routers.comparison import router as comparison_router
 
@@ -19,41 +26,85 @@ app = FastAPI(
     redoc_url="/redoc" if ENVIRONMENT != "production" else None
 )
 
-# CORS Middleware configuration
+# Explicit CORS configuration: Allow production Vercel app and local development hosts
+ALLOWED_ORIGINS = [
+    "https://clarifylaw-ai.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://clarifylaw-.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# Security: Global Exception Handler to suppress verbose internal stack traces in responses
+
+# Rate Limiting Middleware (Sliding Window: 60 req/min per IP)
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    # Bypass rate limits for static assets and documentation
+    if request.url.path.startswith("/api/"):
+        rate_limiter.check_rate_limit(request)
+    response = await call_next(request)
+    return response
+
+
+# Standardized HTTPException Handler
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Ensure all HTTP exceptions return consistent structured JSON with error and code keys."""
+    if isinstance(exc.detail, dict):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": exc.detail.get("error", "An error occurred"),
+                "code": exc.detail.get("code", f"HTTP_{exc.status_code}"),
+                "disclaimer": exc.detail.get("disclaimer", LEGAL_DISCLAIMER_TEXT)
+            }
+        )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": str(exc.detail),
+            "code": f"HTTP_{exc.status_code}",
+            "disclaimer": LEGAL_DISCLAIMER_TEXT
+        }
+    )
+
+
+# Global Unexpected Exception Handler: Suppresses verbose internal traces in production
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    # Log internal error for developers, return sanitized response to users
+    """Global catch-all for uncaught server errors to prevent internal traceback leakage."""
     if ENVIRONMENT == "production":
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
-                "error": "InternalServerError",
-                "message": "An unexpected error occurred while processing your request. Please try again or check input formatting.",
+                "error": "An unexpected error occurred while processing your request. Please try again.",
+                "code": "INTERNAL_SERVER_ERROR",
                 "disclaimer": LEGAL_DISCLAIMER_TEXT
             }
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
-            "error": exc.__class__.__name__,
-            "message": str(exc),
+            "error": f"{exc.__class__.__name__}: {str(exc)}",
+            "code": "INTERNAL_SERVER_ERROR",
             "disclaimer": LEGAL_DISCLAIMER_TEXT
         }
     )
 
 
-# Health check endpoint with dynamic current UTC timestamp (never hardcoded)
+# Health check endpoint with dynamic current UTC timestamp (strictly zero hardcoded date logic)
 @app.get("/api/health")
 async def health_check():
+    """System health check reporting service status, active model, environment, and dynamic UTC timestamp."""
     return {
         "status": "healthy",
         "service": "ClarifyLaw AI",
@@ -64,7 +115,7 @@ async def health_check():
     }
 
 
-# Include Routers
+# Include Document Analysis and Comparison Routers
 app.include_router(documents_router)
 app.include_router(comparison_router)
 

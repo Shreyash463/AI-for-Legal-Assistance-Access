@@ -105,16 +105,18 @@ export default function ComparisonView({ apiKey }) {
           <button
             type="button"
             onClick={handleLoadSamplePair}
-            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+            aria-label="Load preloaded sample comparison contract pair (SaaS Terms of Service v1 vs v2)"
+            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Load Sample Pair (SaaS v1 vs v2)</span>
           </button>
           <button
             type="button"
             disabled={isComparing || !docAText.trim() || !docBText.trim()}
             onClick={handleRunComparison}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+            aria-label="Compare Document A and Document B side-by-side"
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             {isComparing ? (
               <>
@@ -123,7 +125,7 @@ export default function ComparisonView({ apiKey }) {
               </>
             ) : (
               <>
-                <Scale className="w-3.5 h-3.5" />
+                <Scale className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Compare Contracts</span>
               </>
             )}
@@ -144,6 +146,7 @@ export default function ComparisonView({ apiKey }) {
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <input
               type="text"
+              aria-label="Document A Name"
               value={docAName}
               onChange={(e) => setDocAName(e.target.value)}
               className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -154,6 +157,7 @@ export default function ComparisonView({ apiKey }) {
           </div>
           <textarea
             rows={8}
+            aria-label="Document A Contract Text"
             value={docAText}
             onChange={(e) => setDocAText(e.target.value)}
             placeholder="Paste first contract text here..."
@@ -166,6 +170,7 @@ export default function ComparisonView({ apiKey }) {
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <input
               type="text"
+              aria-label="Document B Name"
               value={docBName}
               onChange={(e) => setDocBName(e.target.value)}
               className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded border border-slate-200 w-2/3 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -176,6 +181,7 @@ export default function ComparisonView({ apiKey }) {
           </div>
           <textarea
             rows={8}
+            aria-label="Document B Contract Text"
             value={docBText}
             onChange={(e) => setDocBText(e.target.value)}
             placeholder="Paste second contract or revised version text here..."

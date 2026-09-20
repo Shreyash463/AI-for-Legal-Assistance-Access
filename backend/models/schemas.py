@@ -9,6 +9,13 @@ LEGAL_DISCLAIMER_TEXT = (
 )
 
 
+class ErrorResponse(BaseModel):
+    """Standardized predictable JSON error response shape across all endpoints."""
+    error: str = Field(..., description="Human-readable error explanation")
+    code: str = Field(..., description="Standardized machine-readable error code")
+    disclaimer: str = Field(default=LEGAL_DISCLAIMER_TEXT, description="Legal informational disclaimer")
+
+
 class SimplifiedSection(BaseModel):
     id: str = Field(..., description="Unique section identifier e.g. sec-1")
     title: str = Field(..., description="Section title or heading")

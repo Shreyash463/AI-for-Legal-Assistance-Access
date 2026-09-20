@@ -191,12 +191,14 @@ export default function DocumentUpload({
         </div>
 
         {/* Reading Level Selector */}
-        <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
+        <div role="radiogroup" aria-label="Target Reading Level" className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
           <span className="text-[11px] font-semibold text-slate-500 uppercase px-1">Reading Level:</span>
           <button
             type="button"
+            role="radio"
+            aria-checked={readingLevel === 'standard'}
             onClick={() => setReadingLevel('standard')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition ${
+            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               readingLevel === 'standard'
                 ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
@@ -206,8 +208,10 @@ export default function DocumentUpload({
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={readingLevel === 'executive'}
             onClick={() => setReadingLevel('executive')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition ${
+            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               readingLevel === 'executive'
                 ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
@@ -217,8 +221,10 @@ export default function DocumentUpload({
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={readingLevel === 'simple'}
             onClick={() => setReadingLevel('simple')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition ${
+            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               readingLevel === 'simple'
                 ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
@@ -230,38 +236,50 @@ export default function DocumentUpload({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-100 bg-slate-50/50 px-6 pt-3 gap-2">
+      <div role="tablist" aria-label="Document Input Mode" className="flex border-b border-slate-100 bg-slate-50/50 px-6 pt-3 gap-2">
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeInputTab === 'samples'}
+          id="tab-input-samples"
           onClick={() => setActiveInputTab('samples')}
-          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 ${
+          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
             activeInputTab === 'samples'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-500" aria-hidden="true" />
           Preloaded Sample Contracts (Instant Test)
         </button>
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeInputTab === 'upload'}
+          id="tab-input-upload"
           onClick={() => setActiveInputTab('upload')}
-          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 ${
+          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
             activeInputTab === 'upload'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Upload className="w-3.5 h-3.5" />
+          <Upload className="w-3.5 h-3.5" aria-hidden="true" />
           Upload PDF / File
         </button>
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeInputTab === 'paste'}
+          id="tab-input-paste"
           onClick={() => setActiveInputTab('paste')}
-          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 ${
+          className={`pb-3 px-3 text-xs font-semibold border-b-2 transition flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
             activeInputTab === 'paste'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <FileText className="w-3.5 h-3.5" />
+          <FileText className="w-3.5 h-3.5" aria-hidden="true" />
           Paste Text
         </button>
       </div>
@@ -283,10 +301,12 @@ export default function DocumentUpload({
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {sampleDocuments.map((sample) => (
-                <div
+                <button
+                  type="button"
                   key={sample.id}
                   onClick={() => setSelectedSampleId(sample.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition text-left relative flex flex-col justify-between ${
+                  aria-pressed={selectedSampleId === sample.id}
+                  className={`w-full p-4 rounded-xl border transition text-left relative flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                     selectedSampleId === sample.id
                       ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-2 ring-blue-500/20'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
@@ -306,11 +326,11 @@ export default function DocumentUpload({
                       {sample.description}
                     </p>
                   </div>
-                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
-                    <span>Click to analyze this document</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600 w-full">
+                    <span>Select for analysis</span>
+                    <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
 

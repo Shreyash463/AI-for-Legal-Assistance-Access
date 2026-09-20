@@ -13,12 +13,21 @@ from backend.models.schemas import (
 from backend.services.parser import segment_document
 from backend.services.sample_data import get_sample_lease_analysis
 
+import hashlib
+import time
+
 # In-memory document session store (Ephemeral: cleared on restart or session expiry)
 DOCUMENT_STORE: Dict[str, DocumentAnalysisResponse] = {}
+# Response cache to prevent redundant Gemini API calls on identical contract text within session
+ANALYSIS_CACHE: Dict[str, DocumentAnalysisResponse] = {}
+COMPARISON_CACHE: Dict[str, ComparisonResponse] = {}
 
 
 def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
-    """Retrieve or initialize a Google GenAI client with either provided or configured key."""
+    """
+    Retrieve or initialize a Google GenAI client with either provided or configured key.
+    Ensures that client-provided keys are held in-memory for the active request turn only.
+    """
     key = api_key or GEMINI_API_KEY
     if not key:
         return None
@@ -28,10 +37,18 @@ def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
         return None
 
 
-def execute_gemini_generation(client: genai.Client, prompt: str, config: types.GenerateContentConfig):
-    """Execute Gemini generation with automatic fallback to flash-latest or 3.5-flash-lite on 503 capacity spikes."""
+def execute_gemini_generation(
+    client: genai.Client,
+    prompt: str,
+    config: types.GenerateContentConfig
+):
+    """
+    Execute Gemini generation with instant multi-model failover
+    (gemini-3.8-flash -> gemini-flash-latest -> gemini-3.5-flash-lite).
+    """
     models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
     last_err = None
+
     for m in models_to_try:
         try:
             return client.models.generate_content(
@@ -73,7 +90,7 @@ def fallback_rule_based_analysis(raw_text: str, filename: str, reading_level: st
          "Obligates you to pay for legal defense, damages, and third-party claims against the other party.",
          "Significant unexpected financial liability for third-party actions.",
          "Make indemnification strictly mutual and limited to direct losses caused by gross negligence."),
-        (r"liquidated\s+damages|forfeit(?:ure)?|penalty", "Penalty & Liquidated Damages", "HIGH",
+        (r"(?<!without\s)(?<!no\s)\b(?:liquidated\s+damages|forfeit(?:ure)?|penalt(?:y|ies))\b", "Penalty & Liquidated Damages", "HIGH",
          "Imposes predetermined financial penalties or forfeiture of deposits upon breach or cancellation.",
          "Direct financial loss regardless of actual damages suffered.",
          "Negotiate penalty caps and ensure forfeiture is tied to provable actual damages."),
@@ -217,10 +234,17 @@ async def analyze_document_with_gemini(
     Uses Gemini 3.8 Flash to analyze, simplify, extract risks, and generate actionable output.
     Falls back gracefully to rule-based analysis if API key is not configured or fails.
     """
+    cache_key = hashlib.sha256(f"{raw_text}:{reading_level}".encode()).hexdigest()
+    if cache_key in ANALYSIS_CACHE:
+        cached = ANALYSIS_CACHE[cache_key]
+        DOCUMENT_STORE[cached.document_id] = cached
+        return cached
+
     client = get_genai_client(api_key)
     if not client:
         result = fallback_rule_based_analysis(raw_text, filename, reading_level)
         DOCUMENT_STORE[result.document_id] = result
+        ANALYSIS_CACHE[cache_key] = result
         return result
 
     # Pre-segment document so sections have stable IDs
@@ -351,6 +375,7 @@ Return a JSON object with this exact structure:
             raw_text=raw_text
         )
         DOCUMENT_STORE[doc_id] = analysis
+        ANALYSIS_CACHE[cache_key] = analysis
         return analysis
 
     except Exception as e:
@@ -476,12 +501,30 @@ Return a JSON object with this exact structure:
             )
         )
         parsed = json.loads(response.text)
+        ans_text = parsed.get("answer", "")
+        grounded = bool(parsed.get("grounded_in_document", False))
+        quotes = parsed.get("direct_quotes", [])
+        conf = parsed.get("confidence", "High")
+
+        # Refusal & Grounding Enforcement:
+        # If the question asks about something absent from the document, or if quotes are empty,
+        # or if the answer indicates the topic is not found/mentioned, mark grounded_in_document as False.
+        if (
+            not quotes
+            or conf == "Not Found in Document"
+            or any(neg in ans_text.lower() for neg in [
+                "does not contain", "does not mention", "not mentioned",
+                "no mention", "not found in", "not addressed"
+            ])
+        ):
+            grounded = False
+
         return QAResponse(
-            answer=parsed.get("answer", ""),
-            grounded_in_document=parsed.get("grounded_in_document", False),
+            answer=ans_text,
+            grounded_in_document=grounded,
             cited_sections=parsed.get("cited_sections", []),
-            direct_quotes=parsed.get("direct_quotes", []),
-            confidence=parsed.get("confidence", "High")
+            direct_quotes=quotes,
+            confidence=conf
         )
     except Exception as e:
         return QAResponse(
@@ -503,6 +546,10 @@ async def compare_documents_with_gemini(
     """
     Compares two documents and produces a structured side-by-side comparison matrix.
     """
+    cache_key = hashlib.sha256(f"{doc_a_text}:{doc_b_text}".encode()).hexdigest()
+    if cache_key in COMPARISON_CACHE:
+        return COMPARISON_CACHE[cache_key]
+
     client = get_genai_client(api_key)
 
     if not client:
@@ -643,7 +690,7 @@ Return JSON with this structure:
             )
         )
         parsed = json.loads(response.text)
-        return ComparisonResponse(
+        res = ComparisonResponse(
             doc_a_title=parsed.get("doc_a_title", doc_a_name),
             doc_b_title=parsed.get("doc_b_title", doc_b_name),
             executive_comparison=parsed.get("executive_comparison", ""),
@@ -662,6 +709,8 @@ Return JSON with this structure:
             removed_clauses_in_b=parsed.get("removed_clauses_in_b", []),
             overall_verdict=parsed.get("overall_verdict", "")
         )
+        COMPARISON_CACHE[cache_key] = res
+        return res
     except Exception as e:
         # Fallback to offline comparison
         return await compare_documents_with_gemini(doc_a_name, doc_a_text, doc_b_name, doc_b_text, api_key=None)

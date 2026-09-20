@@ -19,11 +19,31 @@
 
 > *"Legal information can often be complex, difficult to understand, and challenging to navigate without professional assistance. Build a GenAI-powered solution that makes legal information and basic legal assistance more accessible by helping users understand, compare, and navigate legal documents and information."*
 
-**Mandatory Constraint Observed**: ClarifyLaw AI explicitly presents itself as an educational and informational tool, **NOT a replacement for professional legal advice**. This is prominently enforced through persistent UI disclaimers, in-chat guardrails, and structured attorney consultation referrals.
+### Mandatory Legal Advice Constraint as a Core Design Principle
+ClarifyLaw AI treats the non-provision of unauthorized legal advice as an intentional architectural principle, not an afterthought:
+- **Zero Hallucination Grounding**: All responses strictly cite original clause IDs (`Section 1.3`, `Section 4.1`) and verbatim quotes.
+- **Explicit Redirection Guardrails**: Queries requesting litigation decisions or attorney representation (e.g. *"Should I sue?"*, *"Can you represent me?"*) trigger structured redirection to state bar associations, legal aid societies, and attorney consultation checklists (`backend/services/guardrails.py`).
+- **Persistent Warnings**: Header and footer disclaimers prominently remind users that the application is educational and informational only.
 
 ---
 
-## 3. Key Features
+## 3. Problem Statement Coverage (7 Official Use Cases)
+
+Every official requirement of the hackathon problem statement is directly solved and cleanly isolated in dedicated codebase modules:
+
+| # | Official Problem Statement Use Case | Codebase Implementation File(s) | How It Is Solved |
+|---|---|---|---|
+| **1** | **Plain-English Simplification** | `backend/services/gemini_service.py`<br>`frontend/src/components/SectionSimplifier.jsx` | Translates convoluted legal jargon into clear plain English across three selectable reading levels (Standard, Executive TL;DR, Grade 6 Simple). |
+| **2** | **Clause-by-Clause Traceability** | `backend/services/parser.py`<br>`frontend/src/components/SectionSimplifier.jsx` | Assigns deterministic IDs (`sec-1`, `sec-2`) and connects simplified cards to original contract text with two-way click-to-highlight synchronization. |
+| **3** | **Risk & Clause Auditing** | `backend/services/gemini_service.py`<br>`frontend/src/components/RiskRadar.jsx` | Detects auto-renewals, broad indemnifications, unilateral fee shifts, and liquidated damages. Displays multi-dimensional badges (icons + text + colors). |
+| **4** | **Strictly Grounded Document Q&A** | `backend/routers/documents.py`<br>`frontend/src/components/DocumentQA.jsx` | Closed-domain Q&A engine. Refuses to hallucinate unmentioned facts (e.g. confirms topic is absent from document) and provides verbatim citations. |
+| **5** | **Side-by-Side Contract Comparison** | `backend/routers/comparison.py`<br>`frontend/src/components/ComparisonView.jsx` | Compares two agreements (e.g. SaaS v1 vs v2) with term-by-term matrix, favorability delta, and itemized added/removed clause lists. |
+| **6** | **Action Checklist & Export** | `backend/models/schemas.py`<br>`frontend/src/components/ActionChecklist.jsx`<br>`frontend/src/utils/export.js` | Generates attorney consultation questions, red flags to negotiate, and chronological next steps with Markdown, Print, and PDF export options. |
+| **7** | **Legal Advice Guardrail & Disclaimer** | `backend/services/guardrails.py`<br>`frontend/src/components/LegalDisclaimerModal.jsx` | Active regex and heuristic guardrails detect direct legal counsel requests, returning referral guidance and disclaimers. |
+
+---
+
+## 4. Key Features
 
 ClarifyLaw AI implements all six core functional requirements with high fidelity:
 
@@ -82,7 +102,7 @@ ClarifyLaw AI implements all six core functional requirements with high fidelity
 | **Document Parsing** | `pypdf` + Custom Regex Segmenter | Lightweight, dependency-free PDF text extraction that handles scanned/digital PDFs gracefully without heavy external OCR binaries. |
 | **Frontend Framework** | React 18 & Vite | Ultra-fast build times, modular component architecture, and responsive state management. |
 | **Styling & UI** | Tailwind CSS & Lucide Icons | Accessible, high-contrast WCAG 2.1 AA palette, responsive layout for desktop and mobile, and zero external bulky UI component dependencies. |
-| **Testing** | Pytest & FastAPI TestClient | 23 comprehensive automated tests verifying parsing, schema validation, guardrails, Q&A grounding, and dynamic date safety. |
+| **Testing** | Pytest & FastAPI TestClient | 31 comprehensive automated unit & integration tests verifying parsing, schema validation, guardrails, Q&A grounding, prompt injection neutralization, empty/oversized upload rejection, corrupted PDF handling, multilingual text, and dynamic date safety. |
 | **Deployment** | Docker & Uvicorn Single-Process Serving | FastAPI mounts the compiled Vite SPA at `/` in production, allowing complete frontend + backend deployment in a single lightweight container. |
 
 ---
@@ -215,7 +235,7 @@ ClarifyLaw AI comes with 4 synthetic sample legal contracts bundled in `samples/
    ```bash
    pytest tests/ -v
    ```
-   All 23 automated unit tests will pass in seconds.
+   All 31 automated unit & integration tests will pass in seconds.
 
 ---
 

@@ -190,52 +190,68 @@ export default function App() {
                 </div>
 
                 {/* Sub-Navigation Tabs */}
-                <div className="flex border-b border-slate-200 bg-white rounded-2xl p-1.5 shadow-sm overflow-x-auto gap-1">
+                <div role="tablist" aria-label="Analysis Feature Views" className="flex border-b border-slate-200 bg-white rounded-2xl p-1.5 shadow-sm overflow-x-auto gap-1">
                   <button
+                    type="button"
+                    role="tab"
+                    id="subtab-simplifier"
+                    aria-selected={activeSubTab === 'simplifier'}
                     onClick={() => setActiveSubTab('simplifier')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                       activeSubTab === 'simplifier'
                         ? 'bg-blue-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <Layers className="w-4 h-4" />
+                    <Layers className="w-4 h-4" aria-hidden="true" />
                     <span>1. Simplified Clauses & Traceability</span>
                   </button>
 
                   <button
+                    type="button"
+                    role="tab"
+                    id="subtab-radar"
+                    aria-selected={activeSubTab === 'radar'}
                     onClick={() => setActiveSubTab('radar')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                       activeSubTab === 'radar'
                         ? 'bg-blue-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <ShieldAlert className="w-4 h-4" />
+                    <ShieldAlert className="w-4 h-4" aria-hidden="true" />
                     <span>2. Risk & Clause Radar ({analysis.risks.length})</span>
                   </button>
 
                   <button
+                    type="button"
+                    role="tab"
+                    id="subtab-qa"
+                    aria-selected={activeSubTab === 'qa'}
                     onClick={() => setActiveSubTab('qa')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                       activeSubTab === 'qa'
                         ? 'bg-blue-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <MessageSquare className="w-4 h-4" />
+                    <MessageSquare className="w-4 h-4" aria-hidden="true" />
                     <span>3. Grounded Q&A</span>
                   </button>
 
                   <button
+                    type="button"
+                    role="tab"
+                    id="subtab-checklist"
+                    aria-selected={activeSubTab === 'checklist'}
                     onClick={() => setActiveSubTab('checklist')}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                       activeSubTab === 'checklist'
                         ? 'bg-blue-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <CheckSquare className="w-4 h-4" />
+                    <CheckSquare className="w-4 h-4" aria-hidden="true" />
                     <span>4. Action Checklist & Export</span>
                   </button>
                 </div>

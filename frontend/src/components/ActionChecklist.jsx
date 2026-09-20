@@ -44,27 +44,33 @@ export default function ActionChecklist({ analysis }) {
         {/* Export Buttons */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
+            type="button"
             onClick={handleCopy}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+            aria-label="Copy full analysis report as Markdown"
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             title="Copy Full Report as Markdown"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
             <span>{copied ? 'Copied!' : 'Copy Markdown'}</span>
           </button>
           <button
+            type="button"
             onClick={handleDownload}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+            aria-label="Download analysis report as markdown file"
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             title="Download Report as .md file"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Download .MD</span>
           </button>
           <button
+            type="button"
             onClick={printReport}
-            className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition"
+            aria-label="Print report or save as PDF"
+            className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             title="Print or Save PDF"
           >
-            <Printer className="w-3.5 h-3.5" />
+            <Printer className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Print / PDF</span>
           </button>
         </div>
@@ -86,23 +92,24 @@ export default function ActionChecklist({ analysis }) {
               const itemId = `lawyer-${idx}`;
               const isChecked = !!checkedItems[itemId];
               return (
-                <div
+                <label
                   key={itemId}
-                  onClick={() => toggleCheck(itemId)}
-                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 ${
+                  htmlFor={itemId}
+                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-indigo-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
                       : 'bg-white border-slate-200 hover:border-indigo-300 text-slate-800'
                   }`}
                 >
                   <input
+                    id={itemId}
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => {}}
+                    onChange={() => toggleCheck(itemId)}
                     className="mt-0.5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="leading-relaxed">{q}</span>
-                </div>
+                </label>
               );
             })}
           </div>
@@ -122,23 +129,24 @@ export default function ActionChecklist({ analysis }) {
               const itemId = `redflag-${idx}`;
               const isChecked = !!checkedItems[itemId];
               return (
-                <div
+                <label
                   key={itemId}
-                  onClick={() => toggleCheck(itemId)}
-                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 ${
+                  htmlFor={itemId}
+                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-red-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
                       : 'bg-white border-slate-200 hover:border-red-300 text-slate-800'
                   }`}
                 >
                   <input
+                    id={itemId}
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => {}}
+                    onChange={() => toggleCheck(itemId)}
                     className="mt-0.5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="leading-relaxed">{rf}</span>
-                </div>
+                </label>
               );
             })}
           </div>
@@ -158,23 +166,24 @@ export default function ActionChecklist({ analysis }) {
               const itemId = `step-${idx}`;
               const isChecked = !!checkedItems[itemId];
               return (
-                <div
+                <label
                   key={itemId}
-                  onClick={() => toggleCheck(itemId)}
-                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 ${
+                  htmlFor={itemId}
+                  className={`p-3 rounded-xl border text-xs cursor-pointer transition flex items-start gap-2.5 select-none focus-within:ring-2 focus-within:ring-emerald-500 ${
                     isChecked
                       ? 'bg-slate-50 border-slate-200 text-slate-400 line-through'
                       : 'bg-white border-slate-200 hover:border-emerald-300 text-slate-800'
                   }`}
                 >
                   <input
+                    id={itemId}
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => {}}
+                    onChange={() => toggleCheck(itemId)}
                     className="mt-0.5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="leading-relaxed">{step}</span>
-                </div>
+                </label>
               );
             })}
           </div>

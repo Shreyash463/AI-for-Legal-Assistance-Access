@@ -5,12 +5,40 @@ from pypdf import PdfReader
 from fastapi import HTTPException
 from backend.config import MAX_FILE_SIZE_BYTES, ALLOWED_EXTENSIONS, MAX_DOCUMENT_CHARACTERS
 
+PROMPT_INJECTION_PATTERNS = [
+    re.compile(r"\bignore\s+(?:all\s+)?(?:previous|prior)\s+instructions\b", re.IGNORECASE),
+    re.compile(r"\bsystem\s+prompt\s+override\b", re.IGNORECASE),
+    re.compile(r"\byou\s+are\s+now\s+in\s+dan\s+mode\b", re.IGNORECASE),
+    re.compile(r"\bdisregard\s+(?:all\s+)?(?:previous|prior)\s+rules\b", re.IGNORECASE),
+    re.compile(r"\bnew\s+system\s+instruction\s*:\b", re.IGNORECASE),
+]
+
+
+def neutralize_prompt_injections(text: str) -> str:
+    """
+    Detects and neutralizes prompt injection payloads embedded in untrusted contract text.
+    Replaces suspicious adversarial control strings with inert defusal markers.
+    """
+    sanitized = text
+    for pattern in PROMPT_INJECTION_PATTERNS:
+        sanitized = pattern.sub("[Defused Untrusted Injection Attempt: BLOCKED_PAYLOAD]", sanitized)
+    return sanitized
+
+
 def sanitize_text(text: str) -> str:
-    """Sanitize input text by stripping control characters and excessive whitespace."""
+    """
+    Sanitize input text by:
+    1. Stripping null bytes and control characters (protects parser integrity)
+    2. Neutralizing prompt injection attack strings (protects LLM safety)
+    3. Normalizing line breaks
+    4. Capping character length to prevent denial-of-service / memory exhaustion
+    """
     if not text:
         return ""
     # Strip null bytes and non-printable control characters (except newline, tab, carriage return)
     cleaned = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', text)
+    # Neutralize prompt injection attempts
+    cleaned = neutralize_prompt_injections(cleaned)
     # Normalize line breaks
     cleaned = cleaned.replace('\r\n', '\n').replace('\r', '\n')
     # Limit maximum characters to protect from denial of service
@@ -20,11 +48,19 @@ def sanitize_text(text: str) -> str:
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
-    """Extract text from uploaded PDF bytes using pypdf."""
+    """Extract text from uploaded PDF bytes using pypdf with robust error isolation."""
+    if not file_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "The uploaded file is empty (0 bytes).", "code": "EMPTY_FILE"}
+        )
     try:
         reader = PdfReader(io.BytesIO(file_bytes))
         if len(reader.pages) == 0:
-            raise HTTPException(status_code=400, detail="The PDF file contains no pages.")
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "The PDF file contains zero pages.", "code": "EMPTY_PDF"}
+            )
         
         extracted_pages = []
         for i, page in enumerate(reader.pages):
@@ -36,7 +72,10 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
         if not full_text.strip():
             raise HTTPException(
                 status_code=400,
-                detail="Could not extract readable text from PDF. The document may be scanned images or password protected."
+                detail={
+                    "error": "Could not extract readable text from PDF. The document may be scanned images or password protected.",
+                    "code": "UNREADABLE_PDF"
+                }
             )
         return sanitize_text(full_text)
     except HTTPException:
@@ -44,23 +83,37 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Failed to process PDF document: {str(e)}"
+            detail={
+                "error": f"Failed to process PDF document: {str(e)}",
+                "code": "CORRUPT_PDF"
+            }
         )
 
 
-def validate_file(filename: str, file_size: int):
-    """Validate file extension and size."""
+def validate_file(filename: str, file_size: int) -> None:
+    """Validate file extension, size boundary, and naming."""
+    if file_size == 0:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "The uploaded file is empty.", "code": "EMPTY_FILE"}
+        )
     if file_size > MAX_FILE_SIZE_BYTES:
         raise HTTPException(
             status_code=413,
-            detail=f"File exceeds maximum allowed size of {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB."
+            detail={
+                "error": f"File exceeds maximum allowed size of {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB.",
+                "code": "FILE_TOO_LARGE"
+            }
         )
     
     ext = "." + filename.split(".")[-1].lower() if "." in filename else ""
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported file format '{ext}'. Allowed formats: {', '.join(sorted(ALLOWED_EXTENSIONS))}."
+            detail={
+                "error": f"Unsupported file format '{ext}'. Allowed formats: {', '.join(sorted(ALLOWED_EXTENSIONS))}.",
+                "code": "UNSUPPORTED_FORMAT"
+            }
         )
 
 

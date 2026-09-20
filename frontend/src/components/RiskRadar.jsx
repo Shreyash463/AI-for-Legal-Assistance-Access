@@ -56,10 +56,13 @@ export default function RiskRadar({ risks, onJumpToSection }) {
         </div>
 
         {/* Filter Chips with Accessible Count and Icons */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 self-start md:self-auto">
+        <div role="radiogroup" aria-label="Filter risks by severity" className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 self-start md:self-auto">
           <button
+            type="button"
+            role="radio"
+            aria-checked={severityFilter === 'ALL'}
             onClick={() => setSeverityFilter('ALL')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition ${
+            className={`px-3 py-1 text-xs font-semibold rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'ALL'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -68,36 +71,45 @@ export default function RiskRadar({ risks, onJumpToSection }) {
             All ({risks.length})
           </button>
           <button
+            type="button"
+            role="radio"
+            aria-checked={severityFilter === 'HIGH'}
             onClick={() => setSeverityFilter('HIGH')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'HIGH'
                 ? 'bg-red-600 text-white shadow-sm'
                 : 'text-red-700 hover:bg-red-50'
             }`}
           >
-            <ShieldAlert className="w-3 h-3" />
+            <ShieldAlert className="w-3 h-3" aria-hidden="true" />
             High ({highCount})
           </button>
           <button
+            type="button"
+            role="radio"
+            aria-checked={severityFilter === 'MEDIUM'}
             onClick={() => setSeverityFilter('MEDIUM')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'MEDIUM'
                 ? 'bg-amber-600 text-white shadow-sm'
                 : 'text-amber-800 hover:bg-amber-50'
             }`}
           >
-            <AlertTriangle className="w-3 h-3" />
+            <AlertTriangle className="w-3 h-3" aria-hidden="true" />
             Med ({medCount})
           </button>
           <button
+            type="button"
+            role="radio"
+            aria-checked={severityFilter === 'LOW'}
             onClick={() => setSeverityFilter('LOW')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg flex items-center gap-1 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               severityFilter === 'LOW'
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'text-blue-700 hover:bg-blue-50'
             }`}
           >
-            <Info className="w-3 h-3" />
+            <Info className="w-3 h-3" aria-hidden="true" />
             Low ({lowCount})
           </button>
         </div>

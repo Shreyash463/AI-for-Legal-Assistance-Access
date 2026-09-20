@@ -1,18 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, memo } from 'react';
 import { Layers, FileText, CheckCircle, ExternalLink, ArrowRight, Eye } from 'lucide-react';
 
-export default function SectionSimplifier({ sections, rawText }) {
+function SectionSimplifier({ sections, rawText }) {
   const [activeSectionId, setActiveSectionId] = useState(sections && sections[0] ? sections[0].id : null);
   const originalPaneRef = useRef(null);
 
-  const handleSelectSection = (secId) => {
+  const handleSelectSection = useCallback((secId) => {
     setActiveSectionId(secId);
     // Scroll original text pane to the corresponding section if in split view
     const elem = document.getElementById(`orig-${secId}`);
     if (elem) {
       elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  };
+  }, []);
 
   const getCategoryBadgeClass = (category) => {
     switch (category) {
@@ -165,3 +165,5 @@ export default function SectionSimplifier({ sections, rawText }) {
     </div>
   );
 }
+
+export default memo(SectionSimplifier);

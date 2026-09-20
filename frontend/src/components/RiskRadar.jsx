@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import { ShieldAlert, AlertTriangle, Info, Filter, ArrowUpRight, Scale, CheckCircle2 } from 'lucide-react';
 
-export default function RiskRadar({ risks, onJumpToSection }) {
+function RiskRadar({ risks, onJumpToSection }) {
   const [severityFilter, setSeverityFilter] = useState('ALL'); // 'ALL', 'HIGH', 'MEDIUM', 'LOW'
 
-  const filteredRisks = risks.filter((r) => {
-    if (severityFilter === 'ALL') return true;
-    return r.severity === severityFilter;
-  });
+  const filteredRisks = useMemo(() => {
+    if (severityFilter === 'ALL') return risks;
+    return risks.filter((r) => r.severity === severityFilter);
+  }, [risks, severityFilter]);
 
-  const highCount = risks.filter((r) => r.severity === 'HIGH').length;
-  const medCount = risks.filter((r) => r.severity === 'MEDIUM').length;
-  const lowCount = risks.filter((r) => r.severity === 'LOW').length;
+  const { highCount, medCount, lowCount } = useMemo(() => {
+    let high = 0, med = 0, low = 0;
+    for (const r of risks) {
+      if (r.severity === 'HIGH') high++;
+      else if (r.severity === 'MEDIUM') med++;
+      else if (r.severity === 'LOW') low++;
+    }
+    return { highCount: high, medCount: med, lowCount: low };
+  }, [risks]);
 
   const getSeverityBadge = (severity) => {
     switch (severity) {
@@ -191,3 +197,5 @@ export default function RiskRadar({ risks, onJumpToSection }) {
     </div>
   );
 }
+
+export default memo(RiskRadar);

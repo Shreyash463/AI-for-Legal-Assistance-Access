@@ -21,6 +21,7 @@ DOCUMENT_STORE: Dict[str, DocumentAnalysisResponse] = {}
 # Response cache to prevent redundant Gemini API calls on identical contract text within session
 ANALYSIS_CACHE: Dict[str, DocumentAnalysisResponse] = {}
 COMPARISON_CACHE: Dict[str, ComparisonResponse] = {}
+QA_CACHE: Dict[str, QAResponse] = {}
 
 
 def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
@@ -37,25 +38,78 @@ def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
         return None
 
 
+async def execute_gemini_generation_async(
+    client: genai.Client,
+    prompt: str,
+    config: types.GenerateContentConfig,
+    timeout_seconds: float = 25.0,
+    max_retries: int = 2
+):
+    """
+    Execute Gemini generation with:
+    1. Fully non-blocking asynchronous thread execution to avoid event-loop stalls.
+    2. Strict per-request timeout guarding against hanging connections.
+    3. Exponential backoff retry logic (up to 2 retries per model).
+    4. Multi-model failover cascade (gemini-3.8-flash -> gemini-flash-latest -> gemini-3.5-flash-lite).
+    """
+    import asyncio
+    models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
+    last_err = None
+
+    for m in models_to_try:
+        for attempt in range(max_retries + 1):
+            try:
+                # Run synchronous SDK call in threadpool with strict timeout
+                return await asyncio.wait_for(
+                    asyncio.to_thread(
+                        client.models.generate_content,
+                        model=m,
+                        contents=prompt,
+                        config=config
+                    ),
+                    timeout=timeout_seconds
+                )
+            except Exception as err:
+                last_err = err
+                if attempt < max_retries:
+                    # Exponential backoff: 0.5s, 1.0s
+                    await asyncio.sleep(0.5 * (2 ** attempt))
+                else:
+                    # Cascade to next fallback model
+                    break
+
+    raise last_err or RuntimeError("All Gemini generation attempts and fallback models exhausted.")
+
+
 def execute_gemini_generation(
     client: genai.Client,
     prompt: str,
     config: types.GenerateContentConfig
 ):
-    """
-    Execute Gemini generation with instant multi-model failover
-    (gemini-3.8-flash -> gemini-flash-latest -> gemini-3.5-flash-lite).
-    """
+    """Synchronous compatibility wrapper for legacy callers."""
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If inside an active event loop, execute directly in thread
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
+                last_err = None
+                for m in models_to_try:
+                    try:
+                        return pool.submit(client.models.generate_content, model=m, contents=prompt, config=config).result(timeout=25.0)
+                    except Exception as err:
+                        last_err = err
+                        continue
+                raise last_err
+    except Exception:
+        pass
     models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
     last_err = None
-
     for m in models_to_try:
         try:
-            return client.models.generate_content(
-                model=m,
-                contents=prompt,
-                config=config
-            )
+            return client.models.generate_content(model=m, contents=prompt, config=config)
         except Exception as err:
             last_err = err
             continue
@@ -263,13 +317,12 @@ async def analyze_document_with_gemini(
         "Never invent facts not present in the contract. Output valid JSON adhering strictly to the requested schema."
     )
 
-    prompt = f"""
-Analyze the following legal document sections.
+    prompt = f"""Analyze the following legal document sections.
 Filename: {filename}
 Target Reading Level: {reading_level} (options: standard, executive, simple)
 
 Sections:
-{json.dumps(sections_prompt_data, indent=2)}
+{json.dumps(sections_prompt_data, separators=(',', ':'))}
 
 Return a JSON object with this exact structure:
 {{
@@ -310,7 +363,7 @@ Return a JSON object with this exact structure:
 """
 
     try:
-        response = execute_gemini_generation(
+        response = await execute_gemini_generation_async(
             client=client,
             prompt=prompt,
             config=types.GenerateContentConfig(
@@ -394,6 +447,10 @@ async def answer_document_question(
     Answers questions strictly grounded in the document text.
     Refuses to hallucinate unmentioned facts.
     """
+    qa_cache_key = hashlib.sha256(f"{hashlib.sha256(document_text.encode()).hexdigest()}:{question.strip().lower()}".encode()).hexdigest()
+    if qa_cache_key in QA_CACHE:
+        return QA_CACHE[qa_cache_key]
+
     client = get_genai_client(api_key)
 
     if not client:
@@ -491,7 +548,7 @@ Return a JSON object with this exact structure:
 """
 
     try:
-        response = execute_gemini_generation(
+        response = await execute_gemini_generation_async(
             client=client,
             prompt=prompt,
             config=types.GenerateContentConfig(
@@ -519,21 +576,25 @@ Return a JSON object with this exact structure:
         ):
             grounded = False
 
-        return QAResponse(
+        result = QAResponse(
             answer=ans_text,
             grounded_in_document=grounded,
             cited_sections=parsed.get("cited_sections", []),
             direct_quotes=quotes,
             confidence=conf
         )
+        QA_CACHE[qa_cache_key] = result
+        return result
     except Exception as e:
-        return QAResponse(
+        fallback_res = QAResponse(
             answer="The provided document does not contain sufficient terms to verify this inquiry, or the query could not be verified against the text.",
             grounded_in_document=False,
             cited_sections=[],
             direct_quotes=[],
             confidence="Not Found in Document"
         )
+        QA_CACHE[qa_cache_key] = fallback_res
+        return fallback_res
 
 
 async def compare_documents_with_gemini(
@@ -680,7 +741,7 @@ Return JSON with this structure:
 """
 
     try:
-        response = execute_gemini_generation(
+        response = await execute_gemini_generation_async(
             client=client,
             prompt=prompt,
             config=types.GenerateContentConfig(

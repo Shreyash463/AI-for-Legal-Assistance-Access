@@ -50,12 +50,19 @@ async def compare_documents(
     return result
 
 
+_CACHED_COMPARISON_PAIR: Optional[Dict[str, Any]] = None
+
+
 @router.get(
     "/samples",
     summary="Get sample contract pair for instant comparison testing",
     description="Returns SaaS v1.0 and revised SaaS v2.0 for 1-click comparison testing."
 )
 async def get_sample_comparison_pair() -> Dict[str, Any]:
+    global _CACHED_COMPARISON_PAIR
+    if _CACHED_COMPARISON_PAIR is not None:
+        return _CACHED_COMPARISON_PAIR
+
     v1_file = SAMPLES_DIR / "saas_terms_of_service_v1.txt"
     v2_file = SAMPLES_DIR / "saas_terms_of_service_v2.txt"
 
@@ -68,7 +75,7 @@ async def get_sample_comparison_pair() -> Dict[str, Any]:
             }
         )
 
-    return {
+    _CACHED_COMPARISON_PAIR = {
         "doc_a": {
             "name": "CloudStack ToS v1.0 (Standard)",
             "text": v1_file.read_text(encoding="utf-8", errors="ignore")
@@ -78,3 +85,4 @@ async def get_sample_comparison_pair() -> Dict[str, Any]:
             "text": v2_file.read_text(encoding="utf-8", errors="ignore")
         }
     }
+    return _CACHED_COMPARISON_PAIR

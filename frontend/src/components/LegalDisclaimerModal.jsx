@@ -2,21 +2,37 @@ import React from 'react';
 import { ShieldAlert, X, Scale, FileText, Check } from 'lucide-react';
 
 export default function LegalDisclaimerModal({ isOpen, onClose }) {
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-disclaimer-title"
+        className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden"
+      >
         <div className="px-6 py-4 bg-amber-50 border-b border-amber-200/60 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm" id="modal-disclaimer-title">
             <ShieldAlert className="w-5 h-5 text-amber-600" />
             <span>Important Legal Information & Usage Terms</span>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-white transition"
+            aria-label="Close Legal Disclaimer dialog"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-white transition focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

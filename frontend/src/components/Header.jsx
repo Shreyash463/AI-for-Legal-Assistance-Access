@@ -28,9 +28,9 @@ export default function Header({ onOpenApiKey, hasCustomKey, activeTab, setActiv
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-xl font-extrabold tracking-tight text-slate-900 inline">
                 ClarifyLaw <span className="text-blue-600">AI</span>
-              </span>
+              </h1>
               <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded-full shadow-xs">
                 <Sparkles className="w-2.5 h-2.5" /> Gemini 3.8 Flash
               </span>

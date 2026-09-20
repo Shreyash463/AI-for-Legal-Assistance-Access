@@ -43,13 +43,14 @@ It does **not** give legal advice. It gives you the clarity to ask the right que
 
 | Layer | Technology | Why |
 |---|---|---|
-| **AI Model** | Google Gemini API (Gemini 3.8 Flash) | Large context window for long contracts, fast responses, strong structured-output compliance |
-| **Backend** | Python 3.11+, FastAPI | Async performance, native Pydantic validation, auto-generated API docs |
-| **Document Parsing** | `pypdf` + custom section segmenter | Lightweight PDF text extraction without heavy OCR dependencies |
-| **Frontend** | React 18 + Vite | Fast builds, modular components, responsive state management |
-| **Styling** | Tailwind CSS + Lucide Icons | Accessible, WCAG-compliant, no bulky UI dependencies |
-| **Testing** | Pytest + FastAPI TestClient | Automated coverage across parsing, schema validation, guardrails, and Q&A grounding |
-| **Deployment** | Vercel (frontend + serverless backend routing) | Single-domain production deployment with CI-based redeploys on push |
+| **AI Model** | Google Gemini 3.8 Flash (`gemini-3.8-flash`) | State-of-the-art reasoning, 1M token context window for lengthy 50+ page contracts, sub-second latency, structured JSON output compliance, and official Google GenAI SDK support. |
+| **Backend Framework** | Python 3.11+ & FastAPI | High-performance asynchronous API, native Pydantic v2 data validation, automated OpenAPI documentation, and GZip response compression. |
+| **SDK** | `google-genai` (v2.11+) | Modern official Google GenAI SDK utilizing typed generation configurations. |
+| **Document Parsing** | `pypdf` + Custom Regex Segmenter | Lightweight, dependency-free PDF text extraction that handles scanned/digital PDFs gracefully without heavy external OCR binaries. |
+| **Frontend Framework** | React 18 & Vite | Ultra-fast build times, dynamic lazy code-splitting, modular component architecture, and responsive state management. |
+| **Styling & UI** | Tailwind CSS & Lucide Icons | Accessible, high-contrast WCAG 2.1 AA palette, responsive layout for desktop and mobile, and zero external bulky UI component dependencies. |
+| **Testing** | Pytest & FastAPI TestClient | 35 comprehensive automated unit & integration tests verifying parsing, schema validation, guardrails, Q&A grounding, prompt injection neutralization, empty/oversized upload rejection, corrupted PDF handling, multilingual text, cache hit performance, concurrent request resilience, security headers, and dynamic date safety. |
+| **Deployment** | Vercel (Frontend + Serverless Functions) & Docker | Single-domain production deployment on Vercel with automatic CI/CD on git push, plus containerized single-process serving option. |
 
 ---
 

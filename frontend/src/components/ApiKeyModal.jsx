@@ -5,6 +5,15 @@ export default function ApiKeyModal({ isOpen, onClose, apiKey, onSaveApiKey }) {
   const [inputVal, setInputVal] = useState(apiKey || '');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSave = (e) => {
@@ -24,17 +33,24 @@ export default function ApiKeyModal({ isOpen, onClose, apiKey, onSaveApiKey }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-api-title"
+        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden"
+      >
         <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-800 font-semibold">
+          <div className="flex items-center gap-2 text-slate-800 font-semibold" id="modal-api-title">
             <Key className="w-4 h-4 text-blue-600" />
             <span>Gemini API Configuration</span>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"
+            aria-label="Close Gemini API Settings dialog"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

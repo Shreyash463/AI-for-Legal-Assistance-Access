@@ -26,6 +26,11 @@ app = FastAPI(
     redoc_url="/redoc" if ENVIRONMENT != "production" else None
 )
 
+from starlette.middleware.gzip import GZipMiddleware
+
+# GZip Compression Middleware (compresses responses > 1000 bytes)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Explicit CORS configuration: Allow production Vercel app and local development hosts
 ALLOWED_ORIGINS = [
     "https://clarifylaw-ai.vercel.app",
@@ -43,6 +48,27 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+# Security Headers Middleware (Priority 3: Hardened Enterprise Defense)
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if not response.headers.get("Content-Security-Policy"):
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
+            "img-src 'self' data: https:; "
+            "connect-src 'self' https://clarifylaw-ai.vercel.app https://*.vercel.app;"
+        )
+    return response
 
 
 # Rate Limiting Middleware (Sliding Window: 60 req/min per IP)

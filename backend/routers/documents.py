@@ -92,12 +92,19 @@ async def analyze_pasted_text(
     return analysis
 
 
+_CACHED_SAMPLES: Optional[Dict[str, Any]] = None
+
+
 @router.get(
     "/samples",
     summary="List preloaded synthetic sample contracts",
     description="Returns preloaded sample legal agreements for immediate 1-click evaluation without hunting for files."
 )
 async def get_sample_documents() -> Dict[str, Any]:
+    global _CACHED_SAMPLES
+    if _CACHED_SAMPLES is not None:
+        return _CACHED_SAMPLES
+
     samples = []
     if SAMPLES_DIR.exists():
         sample_meta = {
@@ -138,7 +145,8 @@ async def get_sample_documents() -> Dict[str, Any]:
                 "text": text,
                 "word_count": len(text.split())
             })
-    return {"samples": samples}
+    _CACHED_SAMPLES = {"samples": samples}
+    return _CACHED_SAMPLES
 
 
 @router.post(

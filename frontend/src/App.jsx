@@ -1,17 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import Header from './components/Header';
 import DocumentUpload from './components/DocumentUpload';
 import SectionSimplifier from './components/SectionSimplifier';
 import RiskRadar from './components/RiskRadar';
-import DocumentQA from './components/DocumentQA';
-import ActionChecklist from './components/ActionChecklist';
-import ComparisonView from './components/ComparisonView';
-import ApiKeyModal from './components/ApiKeyModal';
-import LegalDisclaimerModal from './components/LegalDisclaimerModal';
+
+// Dynamic code-splitting: Lazy-load heavy sub-views and modals
+const DocumentQA = lazy(() => import('./components/DocumentQA'));
+const ActionChecklist = lazy(() => import('./components/ActionChecklist'));
+const ComparisonView = lazy(() => import('./components/ComparisonView'));
+const ApiKeyModal = lazy(() => import('./components/ApiKeyModal'));
+const LegalDisclaimerModal = lazy(() => import('./components/LegalDisclaimerModal'));
+
 import {
   Layers, ShieldAlert, MessageSquare, CheckSquare,
-  FileText, RotateCcw, Trash2, AlertTriangle, ShieldCheck, Scale, Sparkles
+  RotateCcw, Trash2, AlertTriangle, ShieldCheck, Scale
 } from 'lucide-react';
+
+const ViewSkeleton = () => (
+  <div className="p-8 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-4 animate-fade-slide">
+    <div className="flex items-center gap-3">
+      <div className="w-5 h-5 skeleton-shimmer rounded-full" />
+      <div className="h-4 w-48 skeleton-shimmer rounded" />
+    </div>
+    <div className="h-3.5 w-3/4 skeleton-shimmer rounded" />
+    <div className="h-48 w-full skeleton-shimmer rounded-xl mt-4" />
+  </div>
+);
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('analyze'); // 'analyze' or 'compare'
@@ -91,7 +105,9 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* TAB 1: COMPARISON MODE */}
         {activeTab === 'compare' && (
-          <ComparisonView apiKey={apiKey} />
+          <Suspense fallback={<ViewSkeleton />}>
+            <ComparisonView apiKey={apiKey} />
+          </Suspense>
         )}
 
         {/* TAB 2: DOCUMENT ANALYZER */}
@@ -275,15 +291,19 @@ export default function App() {
                   )}
 
                   {activeSubTab === 'qa' && (
-                    <DocumentQA
-                      documentText={analysis.raw_text}
-                      documentId={analysis.document_id}
-                      apiKey={apiKey}
-                    />
+                    <Suspense fallback={<ViewSkeleton />}>
+                      <DocumentQA
+                        documentText={analysis.raw_text}
+                        documentId={analysis.document_id}
+                        apiKey={apiKey}
+                      />
+                    </Suspense>
                   )}
 
                   {activeSubTab === 'checklist' && (
-                    <ActionChecklist analysis={analysis} />
+                    <Suspense fallback={<ViewSkeleton />}>
+                      <ActionChecklist analysis={analysis} />
+                    </Suspense>
                   )}
                 </div>
               </div>
@@ -315,18 +335,24 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Modals */}
-      <ApiKeyModal
-        isOpen={isApiKeyModalOpen}
-        onClose={() => setIsApiKeyModalOpen(false)}
-        apiKey={apiKey}
-        onSaveApiKey={handleSaveApiKey}
-      />
+      {/* Modals with Suspense */}
+      <Suspense fallback={null}>
+        {isApiKeyModalOpen && (
+          <ApiKeyModal
+            isOpen={isApiKeyModalOpen}
+            onClose={() => setIsApiKeyModalOpen(false)}
+            apiKey={apiKey}
+            onSaveApiKey={handleSaveApiKey}
+          />
+        )}
 
-      <LegalDisclaimerModal
-        isOpen={isDisclaimerModalOpen}
-        onClose={() => setIsDisclaimerModalOpen(false)}
-      />
+        {isDisclaimerModalOpen && (
+          <LegalDisclaimerModal
+            isOpen={isDisclaimerModalOpen}
+            onClose={() => setIsDisclaimerModalOpen(false)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

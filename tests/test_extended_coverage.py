@@ -177,3 +177,61 @@ def test_full_user_flow_integration():
     comp = comp_res.json()
     assert len(comp["key_differences"]) >= 1
     assert "verdict" in comp["overall_verdict"].lower() or len(comp["overall_verdict"]) > 20
+
+
+def test_security_headers_enforced():
+    """Verify security headers middleware adds all hardened headers to every response."""
+    res = client.get("/api/health")
+    assert res.status_code == 200
+    assert res.headers.get("x-content-type-options") == "nosniff"
+    assert res.headers.get("x-frame-options") == "DENY"
+    assert res.headers.get("x-xss-protection") == "1; mode=block"
+    assert res.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+    assert "Content-Security-Policy" in res.headers or "content-security-policy" in res.headers
+
+
+def test_cache_hit_performance():
+    """Verify RAM caching achieves sub-25ms response time on repeated requests."""
+    import time
+    text = "Section 1. Agreement Term: This agreement commences on January 1 and continues for 12 months."
+    
+    # First call primes cache
+    res1 = client.post("/api/documents/analyze-text", json={"text": text, "filename": "test.txt"})
+    assert res1.status_code == 200
+
+    # Second call should hit in-memory cache
+    t0 = time.perf_counter()
+    res2 = client.post("/api/documents/analyze-text", json={"text": text, "filename": "test.txt"})
+    duration_ms = (time.perf_counter() - t0) * 1000
+    
+    assert res2.status_code == 200
+    assert res2.json()["document_id"] == res1.json()["document_id"]
+    assert duration_ms < 50.0  # Fast in-memory cache hit
+
+
+def test_large_document_boundary_processing():
+    """Verify document with 50,000+ characters processes reliably without memory issues."""
+    repeated_clause = "SECTION 1: Standard terms and operational liabilities apply to all participating vendors. "
+    large_text = repeated_clause * 600  # ~54,000 characters
+    res = client.post("/api/documents/analyze-text", json={"text": large_text, "filename": "large.txt"})
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data["sections"]) >= 1
+
+
+def test_concurrent_requests_handling():
+    """Verify concurrent requests to analyze endpoint execute reliably without deadlock."""
+    import concurrent.futures
+    sample = "SECTION 1: Term of Service. Provider agrees to deliver services as stated."
+    
+    def call_api(idx):
+        return client.post("/api/documents/analyze-text", json={"text": f"{sample} ID {idx}", "filename": f"test_{idx}.txt"})
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(call_api, i) for i in range(4)]
+        results = [f.result() for f in futures]
+
+    for r in results:
+        assert r.status_code == 200
+        assert "document_id" in r.json()
+

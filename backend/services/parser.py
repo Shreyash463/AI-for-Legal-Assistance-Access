@@ -1,7 +1,6 @@
 import io
 import re
 from typing import List, Tuple
-from pypdf import PdfReader
 from fastapi import HTTPException
 from backend.config import MAX_FILE_SIZE_BYTES, ALLOWED_EXTENSIONS, MAX_DOCUMENT_CHARACTERS
 
@@ -55,6 +54,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             detail={"error": "The uploaded file is empty (0 bytes).", "code": "EMPTY_FILE"}
         )
     try:
+        from pypdf import PdfReader
         reader = PdfReader(io.BytesIO(file_bytes))
         if len(reader.pages) == 0:
             raise HTTPException(

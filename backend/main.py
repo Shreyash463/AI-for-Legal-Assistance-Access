@@ -9,6 +9,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -25,8 +26,6 @@ app = FastAPI(
     docs_url="/docs" if ENVIRONMENT != "production" else None,
     redoc_url="/redoc" if ENVIRONMENT != "production" else None
 )
-
-from starlette.middleware.gzip import GZipMiddleware
 
 # GZip Compression Middleware (compresses responses > 1000 bytes)
 app.add_middleware(GZipMiddleware, minimum_size=1000)

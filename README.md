@@ -1,223 +1,263 @@
-# ⚖️ ClarifyLaw AI
+# ClarifyLaw AI
 
-> **Democratizing legal literacy with plain-English contract intelligence, clause risk auditing, strictly grounded Q&A, and side-by-side contract comparison — powered by Gemini.**
-
-🌐 **Live App:** [clarifylaw-ai.vercel.app](https://clarifylaw-ai.vercel.app)
-📁 **Repository:** [github.com/Shreyash463/AI-for-Legal-Assistance-Access](https://github.com/Shreyash463/AI-for-Legal-Assistance-Access)
-🏆 **Submission:** PromptWars Virtual — Exclusive Edition (Hack2Skill × Google Developers)
+> **Democratizing legal literacy with plain-English contract intelligence, clause risk auditing, strictly grounded Q&A, and side-by-side contract comparison powered by Gemini 3.8 Flash.**
 
 ---
 
-## 1. Project Overview
+## 1. Project Name & One-Line Pitch
 
-**ClarifyLaw AI** is a production-grade GenAI application that makes legal documents understandable to everyone — not just lawyers. Upload a contract, lease, or policy, and the app breaks it down into plain English, flags the clauses that actually matter, answers your questions using *only* what's in the document, and helps you walk into a conversation with an attorney already prepared.
+**ClarifyLaw AI**: An autonomous, production-grade GenAI application that transforms complex legal documents into plain-English, traceable insights, audits high-risk traps, provides hallucination-free document Q&A, and performs side-by-side contract diffing.
 
-It does **not** give legal advice. It gives you the clarity to ask the right questions.
+🌐 **Live Production Web App**: **[https://clarifylaw-ai.vercel.app](https://clarifylaw-ai.vercel.app)**  
+📁 **Public GitHub Repository**: **[https://github.com/Shreyash463/AI-for-Legal-Assistance-Access](https://github.com/Shreyash463/AI-for-Legal-Assistance-Access)**
 
 ---
 
-## 2. Problem Statement
+## 2. Problem Statement Being Solved
 
-### AI for Legal Assistance & Access
+### Title: AI for Legal Assistance & Access
 
 > *"Legal information can often be complex, difficult to understand, and challenging to navigate without professional assistance. Build a GenAI-powered solution that makes legal information and basic legal assistance more accessible by helping users understand, compare, and navigate legal documents and information."*
 
-**Mandatory constraint observed:** ClarifyLaw AI explicitly presents itself as an educational and informational tool — **not a law firm, not legal advice**. This is enforced through a persistent compliance notice in the UI, guardrails that redirect legal-advice-seeking questions toward professional consultation, and an explicit disclaimer in every generated output.
+### Mandatory Legal Advice Constraint as a Core Design Principle
+ClarifyLaw AI treats the non-provision of unauthorized legal advice as an intentional architectural principle, not an afterthought:
+- **Zero Hallucination Grounding**: All responses strictly cite original clause IDs (`Section 1.3`, `Section 4.1`) and verbatim quotes.
+- **Explicit Redirection Guardrails**: Queries requesting litigation decisions or attorney representation (e.g. *"Should I sue?"*, *"Can you represent me?"*) trigger structured redirection to state bar associations, legal aid societies, and attorney consultation checklists (`backend/services/guardrails.py`).
+- **Persistent Warnings**: Header and footer disclaimers prominently remind users that the application is educational and informational only.
 
 ---
 
-## 3. Key Features
+## 3. Problem Statement Coverage (7 Official Use Cases)
 
-| # | Feature | What it does |
-|---|---------|---------------|
-| 1 | **Plain-English Simplification** | Breaks uploaded documents into section-by-section summaries at three reading levels (Standard, Executive TL;DR, Simple/Grade 6), with click-to-trace linking back to the original clause |
-| 2 | **Risk & Clause Radar** | Automatically detects and flags risky or unusual clauses — auto-renewal traps, liability waivers, penalty clauses, one-sided obligations — each tagged with a severity level (High/Medium/Low) and a plain-English explanation of why it matters |
-| 3 | **Strictly Grounded Q&A** | Answers questions using *only* the uploaded document's content, with citations to the exact section. If the document doesn't cover a topic, the app says so explicitly instead of guessing |
-| 4 | **Side-by-Side Comparison** | Upload or select two documents (e.g., two lease versions, ToS v1 vs v2) and get a structured breakdown of what changed, what's missing, and which version carries more risk |
-| 5 | **Action Checklist & Export** | Generates a tailored checklist — questions to ask a lawyer, red flags to clarify, next steps — exportable as Markdown or print/PDF |
-| 6 | **Legal Disclaimer & Safety Layer** | Persistent compliance notice throughout the app; if a user asks for direct legal advice or litigation strategy, the app redirects them toward consulting a licensed attorney instead of answering directly |
+Every official requirement of the hackathon problem statement is directly solved and cleanly isolated in dedicated codebase modules:
+
+| # | Official Problem Statement Use Case | Codebase Implementation File(s) | How It Is Solved |
+|---|---|---|---|
+| **1** | **Plain-English Simplification** | `backend/services/gemini_service.py`<br>`frontend/src/components/SectionSimplifier.jsx` | Translates convoluted legal jargon into clear plain English across three selectable reading levels (Standard, Executive TL;DR, Grade 6 Simple). |
+| **2** | **Clause-by-Clause Traceability** | `backend/services/parser.py`<br>`frontend/src/components/SectionSimplifier.jsx` | Assigns deterministic IDs (`sec-1`, `sec-2`) and connects simplified cards to original contract text with two-way click-to-highlight synchronization. |
+| **3** | **Risk & Clause Auditing** | `backend/services/gemini_service.py`<br>`frontend/src/components/RiskRadar.jsx` | Detects auto-renewals, broad indemnifications, unilateral fee shifts, and liquidated damages. Displays multi-dimensional badges (icons + text + colors). |
+| **4** | **Strictly Grounded Document Q&A** | `backend/routers/documents.py`<br>`frontend/src/components/DocumentQA.jsx` | Closed-domain Q&A engine. Refuses to hallucinate unmentioned facts (e.g. confirms topic is absent from document) and provides verbatim citations. |
+| **5** | **Side-by-Side Contract Comparison** | `backend/routers/comparison.py`<br>`frontend/src/components/ComparisonView.jsx` | Compares two agreements (e.g. SaaS v1 vs v2) with term-by-term matrix, favorability delta, and itemized added/removed clause lists. |
+| **6** | **Action Checklist & Export** | `backend/models/schemas.py`<br>`frontend/src/components/ActionChecklist.jsx`<br>`frontend/src/utils/export.js` | Generates attorney consultation questions, red flags to negotiate, and chronological next steps with Markdown, Print, and PDF export options. |
+| **7** | **Legal Advice Guardrail & Disclaimer** | `backend/services/guardrails.py`<br>`frontend/src/components/LegalDisclaimerModal.jsx` | Active regex and heuristic guardrails detect direct legal counsel requests, returning referral guidance and disclaimers. |
 
 ---
 
-## 4. Tech Stack
+## 4. Key Features
 
-| Layer | Technology | Why |
+ClarifyLaw AI implements all six core functional requirements with high fidelity:
+
+### 1. Document Upload & Plain-English Simplification
+- **Multi-Format Ingestion**: Supports PDF uploads (up to 10MB) via `pypdf`, raw text file uploads (`.txt`, `.md`), and direct copy-pasting.
+- **Section-by-Section Translation**: Deconstructs legalese into digestible, plain-English summaries categorized by topic (Term & Renewal, Payment, Liability, Termination, Dispute Resolution, IP).
+- **Two-Way Interactive Traceability**: Every simplified section carries a permanent traceable identifier (`sec-1`, `sec-2`). Clicking any simplified card in the left pane instantly highlights and smoothly scrolls to the exact original contract clause in the right pane.
+- **Reading-Level Customization**: Toggle between **Standard Plain English**, **Executive TL;DR**, and **Simple (Grade 6)**.
+
+### 2. Risk & Clause Radar
+- **Automated Clause Triage**: Proactively audits contracts for insidious traps:
+  - Sneaky 60/90-day automatic renewal windows with rent/fee escalations
+  - Broad liability waivers shielding landlords/vendors from ordinary negligence
+  - Liquidated damages penalties and deposit forfeitures
+  - Unilateral modification rights ("at our sole discretion")
+  - Mandatory binding arbitration, class-action waivers, and venue shifts
+  - Unbalanced one-sided attorney fee shifting (e.g. paying landlord's legal fees even if winning)
+- **Accessible Multi-Dimensional Badges**: Employs distinct icons (ShieldAlert, AlertTriangle, Info), WCAG-compliant color contrast, and text badges so severity is never conveyed by color alone.
+- **Actionable Breakdown**: Each flagged clause details **Why This Matters** (plain English), **Potential Exposure**, and a **Suggested Counter-Action/Amendment**.
+- **Interactive Severity Filters**: Filter dynamically by *All*, *High Risk*, *Medium Risk*, or *Low Risk*.
+
+### 3. Strictly Grounded Document Q&A
+- **Zero-Hallucination Grounding**: The Gemini prompt enforces a strict closed-domain mandate: answers are drawn exclusively from provided contract text.
+- **Explicit Negative Refusal**: If a question inquires about terms not present in the document (e.g., asking about pet policies or patent rights in an agreement that lacks them), the engine explicitly states: *"The provided document does not contain terms or information regarding this subject."*
+- **Verifiable Citations**: Every answer lists the cited section IDs (e.g., `Section 1.3`, `Section 4.1`) and verbatim quote snippets.
+- **Preloaded Test Prompts**: Includes one-click sample queries for judges to test boundaries immediately.
+
+### 4. Side-by-Side Comparison Mode
+- **Contract Diffing**: Upload or paste two contracts (e.g., current lease vs renewal lease, or SaaS ToS v1 vs v2).
+- **Structured Matrix**: Side-by-side term analysis covering fees, cancellation windows, liability limits, and dispute forums.
+- **Favorability Delta**: Assesses whether Document A or Document B is safer or introduces higher risk.
+- **Added & Removed Clauses**: Automatically enumerates terms added or protections omitted in the revised version.
+
+### 5. Action Checklist & Multi-Format Exporter
+- **Attorney Consultation Prep**: Generates focused questions to ask a licensed lawyer.
+- **Red Flags to Clarify**: Curates ambiguities or aggressive terms to challenge before signing.
+- **Recommended Next Steps**: Provides concrete chronological steps (calendar alerts, condition photos, amendment requests).
+- **Multi-Format Export**:
+  - 📋 **Copy to Clipboard** formatted Markdown report
+  - 💾 **Download `.md`** file for local archiving
+  - 🖨️ **Print / PDF Download** with clean `@media print` CSS layout
+
+### 6. Legal Disclaimer & Safety Layer
+- **Persistent Sticky Banner**: Unmissable header alert and footer notice throughout the app.
+- **Active Guardrail Filter**: Detects queries seeking legal representation or litigation direction (e.g., *"Should I sue my landlord?"*, *"Will I win in court?"*). Gracefully redirects users with state bar referral advice and consultation checklists rather than direct legal counsel.
+
+---
+
+## 4. Tech Stack & Architectural Decisions
+
+| Layer | Technology | Rationale |
 |---|---|---|
 | **AI Model** | Google Gemini 3.8 Flash (`gemini-3.8-flash`) | State-of-the-art reasoning, 1M token context window for lengthy 50+ page contracts, sub-second latency, structured JSON output compliance, and official Google GenAI SDK support. |
-| **Backend Framework** | Python 3.11+ & FastAPI | High-performance asynchronous API, native Pydantic v2 data validation, automated OpenAPI documentation, and GZip response compression. |
+| **Backend Framework** | Python 3.11+ & FastAPI | High-performance asynchronous API, native Pydantic v2 data validation, automated OpenAPI documentation, and effortless integration with PDF parsing tools. |
 | **SDK** | `google-genai` (v2.11+) | Modern official Google GenAI SDK utilizing typed generation configurations. |
 | **Document Parsing** | `pypdf` + Custom Regex Segmenter | Lightweight, dependency-free PDF text extraction that handles scanned/digital PDFs gracefully without heavy external OCR binaries. |
-| **Frontend Framework** | React 18 & Vite | Ultra-fast build times, dynamic lazy code-splitting, modular component architecture, and responsive state management. |
+| **Frontend Framework** | React 18 & Vite | Ultra-fast build times, modular component architecture, and responsive state management. |
 | **Styling & UI** | Tailwind CSS & Lucide Icons | Accessible, high-contrast WCAG 2.1 AA palette, responsive layout for desktop and mobile, and zero external bulky UI component dependencies. |
 | **Testing** | Pytest & FastAPI TestClient | 35 comprehensive automated unit & integration tests verifying parsing, schema validation, guardrails, Q&A grounding, prompt injection neutralization, empty/oversized upload rejection, corrupted PDF handling, multilingual text, cache hit performance, concurrent request resilience, security headers, and dynamic date safety. |
 | **Deployment** | Vercel (Frontend + Serverless Functions) & Docker | Single-domain production deployment on Vercel with automatic CI/CD on git push, plus containerized single-process serving option. |
 
 ---
 
-## 5. Architecture
+## 5. Architecture & Data Flow
 
 ```
-                         ┌───────────────────────────────┐
-                         │           Browser              │
-                         │  React 18 + Tailwind CSS       │
-                         │  Split-screen traceability view │
-                         └───────────────┬─────────────────┘
-                                         │ REST / multipart upload
-                                         ▼
-                         ┌───────────────────────────────┐
-                         │         FastAPI Backend         │
-                         │  /api/documents/upload           │
-                         │  /api/documents/qa                │
-                         │  /api/compare                     │
-                         └──────┬───────────────┬────────────┘
-                                │               │
-                    ┌───────────▼──┐   ┌────────▼─────────┐
-                    │ Doc Parser    │   │ Safety Guardrails │
-                    │ - Size cap    │   │ - Advice-seeking   │
-                    │ - Sanitize    │   │   query detection   │
-                    │ - Chunking    │   │ - Attorney redirect  │
-                    └───────┬───────┘   └──────────┬─────────┘
-                            └───────────┬───────────┘
-                                        ▼
-                         ┌───────────────────────────────┐
-                         │       Gemini 3.8 Flash          │
-                         │  Simplification · Risk Radar    │
-                         │  Grounded Q&A · Comparison       │
-                         │  Checklist Generation             │
-                         └───────────────────────────────┘
++-------------------------------------------------------------------------+
+|                              Web Browser                                |
+|   (React 18 + Tailwind CSS + Lucide Icons + Split-Screen Trace Viewer)  |
++-------------------------------------------------------------------------+
+            |                                         ^
+            | REST / Multipart Upload                 | JSON / Traced Cards
+            v                                         |
++-------------------------------------------------------------------------+
+|                           FastAPI Backend                               |
+|                                                                         |
+|  [/api/documents/upload]     [/api/documents/qa]     [/api/compare]     |
++-------------------------------------------------------------------------+
+       |                                |                      |
+       v                                v                      v
++------------------+         +--------------------+  +--------------------+
+| Document Parser  |         | Safety Guardrails  |  | Comparison Engine  |
+| - File size cap  |         | - Regex advice     |  | - Side-by-side     |
+| - pypdf extract  |         |   detection        |  |   term diffing     |
+| - Text sanitize  |         | - Bar consultation |  | - Risk delta       |
+| - Sec-ID chunker |         |   redirection      |  +--------------------+
++------------------+         +--------------------+            |
+       |                                |                      |
+       +--------------------------------+----------------------+
+                                        |
+                                        v
+                    +---------------------------------------+
+                    |           Gemini 3.8 Flash            |
+                    |         (google-genai SDK)            |
+                    | - Section Simplification              |
+                    | - Clause Risk Highlighting (H/M/L)    |
+                    | - Grounded Q&A with Direct Citations  |
+                    | - Action Checklist Generation         |
+                    +---------------------------------------+
+                                        |
+                                        v
+                    +---------------------------------------+
+                    |     Ephemeral In-Memory Session       |
+                    | (Zero persistent disk storage; purged |
+                    |  on session end or "Clear Session")   |
+                    +---------------------------------------+
 ```
-
-Documents are processed in-memory for the session only — no persistent storage of uploaded content.
 
 ---
 
-## 6. Setup & Installation
+## 6. Setup & Installation Instructions
+
+Follow these step-by-step instructions to run ClarifyLaw AI locally:
 
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+ and npm
-- A Gemini API key ([get one free](https://aistudio.google.com/app/apikey))
+- A Google Gemini API Key ([Get a free key here](https://aistudio.google.com/app/apikey))
 
-### Steps
-
+### 1. Clone the Repository
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Shreyash463/AI-for-Legal-Assistance-Access.git
-cd AI-for-Legal-Assistance-Access
+git clone https://github.com/your-username/clarifylaw-ai.git
+cd clarifylaw-ai
+```
 
-# 2. Configure environment variables
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
 cp .env.example .env
-# Edit .env and add your Gemini API key:
-# GEMINI_API_KEY=your_key_here
-# GEMINI_MODEL=gemini-3.8-flash
-# PORT=8000
-# HOST=0.0.0.0
+```
+Edit `.env` and paste your Gemini API key:
+```ini
+GEMINI_API_KEY=AIzaSyYourActualKeyHere
+GEMINI_MODEL=gemini-3.8-flash
+PORT=8000
+HOST=0.0.0.0
+ENVIRONMENT=development
+```
+*(Note: You can also launch the app without setting this in `.env` and simply enter your key via the "API Key" button in the web UI header, or use the pre-computed offline evaluation mode for bundled samples!)*
 
-# 3. Install backend dependencies
+### 3. Install Python Backend Dependencies
+```bash
 pip install -r requirements.txt
+```
 
-# 4. Build the frontend
+### 4. Build the Frontend
+```bash
 cd frontend
 npm install
 npm run build
 cd ..
+```
 
-# 5. Launch the server
+### 5. Launch the Server
+Start the unified FastAPI server:
+```bash
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Open **http://localhost:8000** in your browser.
+Open your browser at:
+**`http://localhost:8000`**
 
-> You can also skip entering an API key in `.env` and use the in-app **Settings → API Key** option to test with your own key directly from the UI.
-
----
-
-## 7. How to Test
-
-The app ships with **4 synthetic sample legal documents** in `samples/` so anyone can test every feature immediately, with zero setup:
-
-| Sample | Tests |
-|---|---|
-| Residential Lease Agreement | Auto-renewal detection, one-sided fee shifting, deposit retention terms |
-| SaaS Terms of Service v1.0 | Balanced commercial contract baseline |
-| SaaS Terms of Service v2.0 (Revised) | Comparison mode target — price hikes, liability cap changes, arbitration shifts |
-| Independent Contractor Agreement | Non-compete clauses, IP assignment terms |
-
-**Walkthrough:**
-1. Select a sample document → click **Run Plain-English Analysis**
-2. Click any simplified clause card → watch it highlight and scroll to the matching original section
-3. Open **Risk & Clause Radar** → filter by severity
-4. Open **Grounded Q&A** → ask an in-scope question (get a cited answer) and an out-of-scope question (get an explicit refusal, not a hallucination)
-5. Switch to **Comparison Mode** → load the SaaS v1 vs v2 pair → review the diff
-6. Open **Action Checklist** → export via copy, download, or print
-
-**Run automated tests:**
-```bash
-pytest tests/ -v
-```
+*(For development with instant frontend hot-reloading, run `npm run dev` inside `frontend/` on port 3000 alongside FastAPI).*
 
 ---
 
-## 8. Security & Reliability Hardening
+## 7. How to Test (Bundled Sample Documents)
 
-- No hardcoded secrets anywhere in the codebase — all keys via environment variables
-- Server-side file type and size validation on every upload
-- Rate limiting on all API endpoints
-- Explicit CORS configuration (no wildcard origins)
-- Sanitized document text before it reaches the model, to reduce prompt-injection risk from malicious document content
-- Structured, consistent error responses across all endpoints
-- No persistent storage of uploaded documents — ephemeral, in-memory session only
-- **Date-bug regression tested:** no hardcoded deadlines or static date comparisons anywhere in the app; all timestamps generated dynamically
+ClarifyLaw AI comes with 4 synthetic sample legal contracts bundled in `samples/` so judges and reviewers can immediately test the full feature set with a single click:
 
----
+| Sample Document | File Location | Key Testing Scenarios |
+|---|---|---|
+| **Residential Lease Agreement** | `samples/residential_lease_agreement.txt` | • **60-day auto-renewal** with 10% rent escalation<br>• **Unilateral attorney fee shifting** (tenant pays even when winning)<br>• **90-day deposit retention** and early termination liquidated damages<br>• **4-hour landlord entry notice** |
+| **SaaS Terms of Service (v1.0)** | `samples/saas_terms_of_service_v1.txt` | • Balanced commercial contract with 99.5% SLA<br>• Mutual 12-month liability cap<br>• 30-day cancellation notice |
+| **SaaS Terms of Service (v2.0 - Revised)** | `samples/saas_terms_of_service_v2.txt` | • **Comparison Mode Target**: 60% price hike + 25% annual increases<br>• Broad **AI model training license** on customer data<br>• Provider liability gutted to **$100 flat**<br>• Mandatory AAA arbitration in Miami with 6-month claim forfeiture |
+| **Independent Contractor Agreement** | `samples/independent_contractor_agreement.txt` | • Aggressive **24-month worldwide non-compete**<br>• Comprehensive IP assignment and moral rights waiver<br>• Net-60 payment terms |
 
-## 9. Accessibility
-
-- WCAG-compliant color contrast throughout
-- Risk severity is never conveyed by color alone — every badge pairs color with an icon and a text label
-- Full keyboard navigation across all interactive elements, with visible focus states
-- Semantic HTML structure (`<button>`, proper heading hierarchy, landmark regions) for screen reader compatibility
-- Responsive layout across desktop and mobile
-
----
-
-## 10. Problem Statement Coverage
-
-| Official use case | Where it's implemented |
-|---|---|
-| Simplifying complex legal documents | Plain-English Simplification (§3.1) |
-| Comparing contracts, agreements, or policies | Side-by-Side Comparison (§3.4) |
-| Highlighting clauses, obligations, risks, inconsistencies | Risk & Clause Radar (§3.2) |
-| Answering questions based on provided legal documents | Strictly Grounded Q&A (§3.3) |
-| Helping users understand options and next steps | Action Checklist (§3.5) |
-| Generating summaries, checklists, actionable outputs | Simplification + Checklist (§3.1, §3.5) |
-| Preparing information/questions for a legal professional | Action Checklist (§3.5) |
+### Step-by-Step Evaluation Walkthrough:
+1. **Instant Analysis**: Open the app and under *Preloaded Sample Contracts*, click **Residential Lease Agreement** -> Click **Run Plain-English Analysis**.
+2. **Test Traceability**: In *Tab 1 (Simplified Clauses)*, click any card on the left. Watch the right pane highlight and smoothly scroll to the exact original section.
+3. **Test Risk Radar**: Click *Tab 2 (Risk & Clause Radar)*. Inspect flagged clauses. Click the **High** filter chip to isolate critical traps.
+4. **Test Grounded Q&A**: Click *Tab 3 (Grounded Q&A)*.
+   - Click the prompt *"Can I cancel or terminate this agreement early?"* -> See the grounded citation of Section 4.1.
+   - Ask an out-of-scope question: *"Does this contract mention cryptocurrency payment?"* -> See the engine refuse to hallucinate and confirm the topic is absent.
+   - Ask for legal advice: *"Should I sue my landlord?"* -> Observe the **Legal Advice Redirection Guardrail** actively advise consulting a licensed attorney with concrete steps.
+5. **Test Comparison Mode**: Switch to the **Comparison Mode** tab at the top. Click **Load Sample Pair (SaaS v1 vs v2)** -> Click **Compare Contracts**. Review the term differences table, added terms, and overall risk verdict.
+6. **Test Action Checklist & Export**: Switch back to *Tab 4 (Action Checklist)*. Check off action items. Click **Copy Markdown** or **Print / PDF**.
+7. **Run Automated Unit Tests**:
+   ```bash
+   pytest tests/ -v
+   ```
+   All 35 automated unit & integration tests will pass in seconds.
 
 ---
 
-## 11. Known Limitations & Roadmap
+## 8. Known Limitations & Future Roadmap
 
-**Current limitations:**
-- Scanned/image-only PDFs (no text layer) require OCR pre-processing not yet included
-- Highlights suspicious terms but doesn't verify state-specific statutory compliance
-- Document length capped at ~250,000 characters to protect against memory exhaustion
+### Current Limitations:
+- **Scanned Image PDFs (OCR)**: PDFs containing rasterized image scans without underlying text layers require OCR pre-processing. A cloud OCR pipeline (e.g. Google Cloud Document AI) would enhance support for legacy paper scans.
+- **Jurisdiction-Specific Statutory Verification**: While ClarifyLaw AI highlights suspicious terms (like 90-day deposit holding), state-level statutory compliance varies by postal code.
+- **Document Length**: Capped at 250,000 characters (~50,000 words) to protect against memory exhaustion.
 
-**What's next with more time:**
-- Multi-jurisdiction statute cross-referencing (e.g., citing specific state codes)
-- One-click redline/amendment generation in `.docx` format
-- Audio walkthrough via text-to-speech for accessibility
-- Local bar association / legal aid directory integration
-
----
-
-## 12. Compliance & Disclaimer
-
-ClarifyLaw AI is an educational and informational tool. It is **not a law firm** and does **not provide legal advice**. Always consult a qualified, licensed attorney for legal matters specific to your situation. This principle is enforced throughout the application via a persistent UI notice and an active guardrail that redirects advice-seeking or litigation-strategy questions toward professional consultation rather than answering them directly.
+### What We'd Build Next With More Time:
+1. **Multi-Jurisdiction Legal Statute Grounding**: Integrate automated cross-referencing with municipal and state tenant/commercial codes to cite specific state statutes (e.g. California Civil Code § 1950.5 for security deposits).
+2. **Redline Generation**: Provide 1-click proposed amendment redlines in `.docx` format ready to email to opposing parties.
+3. **Audio / Speech Walkthrough**: Implement Google Gemini Live API / TTS audio generation so visually impaired users can listen to a spoken executive briefing of their contract.
+4. **Local Bar Association Directory API**: Direct geolocation integration with accredited Legal Aid and State Bar Association referral programs.
 
 ---
 
-## 13. Submission Details
+## 9. Submission Details & Compliance
 
-- **Problem Statement:** AI for Legal Assistance & Access
-- **Event:** PromptWars Virtual — Exclusive Edition
-- **Repository size:** Under 10MB (build artifacts, virtual environments, and node_modules excluded via `.gitignore`)
+- **Problem Statement Title**: AI for Legal Assistance & Access
+- **Submission Category**: PromptWars Exclusive Edition Hackathon
+- **Date Bug Compliance Certified**: Verified zero hardcoded deadline comparisons or static date parsing. All timestamps generated dynamically via `datetime.now(timezone.utc)` and browser system clock.
+- **Repository Size**: Cleanly formatted under 10MB (build caches, virtual environments, and temporary artifacts excluded via `.gitignore`).
+- **Security & Privacy Policy**: No hardcoded API keys. User uploads sanitized. Ephemeral session memory with instant manual purge functionality.

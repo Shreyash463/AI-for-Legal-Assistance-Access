@@ -1,6 +1,9 @@
+import asyncio
+import hashlib
 import json
-import uuid
 import re
+import time
+import uuid
 from typing import Optional, List, Dict, Any, Tuple
 from google import genai
 from google.genai import types
@@ -13,9 +16,6 @@ from backend.models.schemas import (
 from backend.services.parser import segment_document
 from backend.services.sample_data import get_sample_lease_analysis
 
-import hashlib
-import time
-
 # In-memory document session store (Ephemeral: cleared on restart or session expiry)
 DOCUMENT_STORE: Dict[str, DocumentAnalysisResponse] = {}
 # Response cache to prevent redundant Gemini API calls on identical contract text within session
@@ -23,19 +23,24 @@ ANALYSIS_CACHE: Dict[str, DocumentAnalysisResponse] = {}
 COMPARISON_CACHE: Dict[str, ComparisonResponse] = {}
 QA_CACHE: Dict[str, QAResponse] = {}
 
+# Cached Gemini client singletons by API key to avoid recreating HTTP clients on every call
+_CLIENT_CACHE: Dict[str, genai.Client] = {}
+
 
 def get_genai_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
     """
-    Retrieve or initialize a Google GenAI client with either provided or configured key.
-    Ensures that client-provided keys are held in-memory for the active request turn only.
+    Retrieve or initialize a cached Google GenAI client instance.
+    Reuses clients across requests to eliminate HTTP transport and SSL connection overhead.
     """
-    key = api_key or GEMINI_API_KEY
+    key = (api_key or GEMINI_API_KEY or "").strip()
     if not key:
         return None
-    try:
-        return genai.Client(api_key=key)
-    except Exception:
-        return None
+    if key not in _CLIENT_CACHE:
+        try:
+            _CLIENT_CACHE[key] = genai.Client(api_key=key)
+        except Exception:
+            return None
+    return _CLIENT_CACHE[key]
 
 
 async def execute_gemini_generation_async(
@@ -46,23 +51,18 @@ async def execute_gemini_generation_async(
     max_retries: int = 2
 ):
     """
-    Execute Gemini generation with:
-    1. Fully non-blocking asynchronous thread execution to avoid event-loop stalls.
-    2. Strict per-request timeout guarding against hanging connections.
-    3. Exponential backoff retry logic (up to 2 retries per model).
-    4. Multi-model failover cascade (gemini-3.8-flash -> gemini-flash-latest -> gemini-3.5-flash-lite).
+    Execute Gemini generation using native non-blocking asynchronous I/O via
+    client.aio.models.generate_content, avoiding event-loop blocking and threadpool overhead.
+    Includes per-request timeout protection, exponential backoff, and model fallback.
     """
-    import asyncio
     models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
     last_err = None
 
     for m in models_to_try:
         for attempt in range(max_retries + 1):
             try:
-                # Run synchronous SDK call in threadpool with strict timeout
                 return await asyncio.wait_for(
-                    asyncio.to_thread(
-                        client.models.generate_content,
+                    client.aio.models.generate_content(
                         model=m,
                         contents=prompt,
                         config=config
@@ -72,10 +72,8 @@ async def execute_gemini_generation_async(
             except Exception as err:
                 last_err = err
                 if attempt < max_retries:
-                    # Exponential backoff: 0.5s, 1.0s
                     await asyncio.sleep(0.5 * (2 ** attempt))
                 else:
-                    # Cascade to next fallback model
                     break
 
     raise last_err or RuntimeError("All Gemini generation attempts and fallback models exhausted.")
@@ -86,25 +84,7 @@ def execute_gemini_generation(
     prompt: str,
     config: types.GenerateContentConfig
 ):
-    """Synchronous compatibility wrapper for legacy callers."""
-    import asyncio
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # If inside an active event loop, execute directly in thread
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
-                last_err = None
-                for m in models_to_try:
-                    try:
-                        return pool.submit(client.models.generate_content, model=m, contents=prompt, config=config).result(timeout=25.0)
-                    except Exception as err:
-                        last_err = err
-                        continue
-                raise last_err
-    except Exception:
-        pass
+    """Synchronous fallback wrapper for non-async callers."""
     models_to_try = [GEMINI_MODEL, "gemini-flash-latest", "gemini-3.5-flash-lite"]
     last_err = None
     for m in models_to_try:
@@ -113,7 +93,7 @@ def execute_gemini_generation(
         except Exception as err:
             last_err = err
             continue
-    raise last_err
+    raise last_err or RuntimeError("All Gemini generation attempts exhausted.")
 
 
 def fallback_rule_based_analysis(raw_text: str, filename: str, reading_level: str = "standard") -> DocumentAnalysisResponse:
@@ -368,8 +348,7 @@ Return a JSON object with this exact structure:
             prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                system_instruction=system_instruction,
-                temperature=0.2
+                system_instruction=system_instruction
             )
         )
 
@@ -553,8 +532,7 @@ Return a JSON object with this exact structure:
             prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                system_instruction=system_instruction,
-                temperature=0.0
+                system_instruction=system_instruction
             )
         )
         parsed = json.loads(response.text)
@@ -746,8 +724,7 @@ Return JSON with this structure:
             prompt=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                system_instruction=system_instruction,
-                temperature=0.2
+                system_instruction=system_instruction
             )
         )
         parsed = json.loads(response.text)
